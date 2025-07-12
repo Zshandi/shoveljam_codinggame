@@ -1,0 +1,29 @@
+[gd_scene load_steps=5 format=3 uid="uid://bfsi8tw4oi3ni"]
+
+[ext_resource type="Script" uid="uid://bmxifsduxlvt0" path="res://character.gd" id="1_uhqqe"]
+[ext_resource type="PackedScene" uid="uid://cwc4paaux6xax" path="res://controls.tscn" id="2_ia1lp"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ia1lp"]
+size = Vector2(1170, 68)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sasra"]
+size = Vector2(40, 55)
+
+[node name="Node2D" type="Node2D"]
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(569, 282)
+shape = SubResource("RectangleShape2D_ia1lp")
+
+[node name="Character" type="CharacterBody2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(568, 197)
+script = ExtResource("1_uhqqe")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Character"]
+shape = SubResource("RectangleShape2D_sasra")
+
+[node name="Controls" parent="." node_paths=PackedStringArray("context") instance=ExtResource("2_ia1lp")]
+context = NodePath("../Character")

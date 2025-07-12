@@ -1,0 +1,49 @@
+[gd_scene load_steps=5 format=3 uid="uid://bfsi8tw4oi3ni"]
+
+[ext_resource type="Script" uid="uid://bmxifsduxlvt0" path="res://character.gd" id="1_uhqqe"]
+[ext_resource type="Script" uid="uid://cn807bber78gd" path="res://controls.gd" id="2_ia1lp"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ia1lp"]
+size = Vector2(1170, 68)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sasra"]
+size = Vector2(40, 55)
+
+[node name="Node2D" type="Node2D"]
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(569, 282)
+shape = SubResource("RectangleShape2D_ia1lp")
+
+[node name="Character" type="CharacterBody2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(568, 197)
+script = ExtResource("1_uhqqe")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Character"]
+shape = SubResource("RectangleShape2D_sasra")
+
+[node name="Controls" type="CanvasLayer" parent="."]
+script = ExtResource("2_ia1lp")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Controls"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Input" type="TextEdit" parent="Controls/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="GO" type="Button" parent="Controls/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "GO"
+
+[connection signal="pressed" from="Controls/VBoxContainer/GO" to="Controls" method="_on_go_pressed"]
