@@ -58,12 +58,12 @@ func replace_vars_with_dictionaries(expr:String) -> String:
 	return expr
 
 func execute_expression(expr:String) -> void:
-	var error = expression.parse(expr)
+	var error = expression.parse(expr, ["DisplayServer"])
 	if error != OK:
 		# TODO: OUTPUT ERROR
 		print(expression.get_error_text())
 		#return null
-	var result = await expression.execute([], context)
+	var result = await expression.execute([DisplayServer], context)
 	if not expression.has_execute_failed():
 		# TODO: do something with this??
 		print("result: " + str(result))
