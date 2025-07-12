@@ -7,14 +7,31 @@ var expression = Expression.new()
 
 func _on_go_pressed() -> void:
 	var code = %Input.text
-	
+	var result:Array
 	var line_num := 1
+	
+	%Input.visible = false
+	%Output.visible = true
+	%Output.text = "Executing code:\n"
+	
 	for line in code.split('\n'):
+		if line.strip_edges() == "":
+			# ignore empty lines
+			continue
 		print("executing line ", line_num, ": ")
-		await execute_line(line)
+		result = await execute_line(line)
+		if result[0]:
+			%Output.text += "[color=green]%s: %s[/color]\n" % [line, result[1]]
+		else:
+			%Output.text += "[color=red]%s: ERROR %s[/color]\n" % [line, result[1]]
+			break
 		line_num = line_num + 1
+	%Output.text += "Finished!\n"
 
-func execute_line(line:String):
+func _on_reset_pressed():
+	get_tree().reload_current_scene()
+
+func execute_line(line:String) -> Array:
 	line = line.strip_edges()
 	if line.contains("="): # TODO Account for ==
 		var sides = line.split("=")
@@ -27,26 +44,20 @@ func execute_line(line:String):
 				var_name = left_hand_side.substr(4).strip_edges()
 				if var_name in context.user_variables:
 					# This is to account for dictionary assignment also adding the value
-					print("ERROR: re-define variable")
-					# TODO: OUTPUT ERROR
-					return
+					return [false, "re-define variable"]
 			else:
 				if !(var_name in context.user_variables):
 					# This is to account for dictionary assignment also adding the value
-					print("ERROR: assignment to undefined variable")
-					# TODO: OUTPUT ERROR
-					return
+					return [false, "assignment to undefined variable"]
 			
 			line = "user_variables.set(\""+var_name+"\", "+variable_value+")"
 		else:
-			print("ERROR: invalid assign")
-			# TODO: OUTPUT ERROR
-			return
+			return [false, "invalid assign"]
 	else:
 		line = replace_vars_with_dictionaries(line)
 	
 	print("final line: ", line)
-	await execute_expression(line)
+	return await execute_expression(line)
 
 func replace_vars_with_dictionaries(expr:String) -> String:
 	# TODO: Fix this to match against full word?
@@ -57,13 +68,14 @@ func replace_vars_with_dictionaries(expr:String) -> String:
 	
 	return expr
 
-func execute_expression(expr:String) -> void:
+func execute_expression(expr:String) -> Array:
 	var error = expression.parse(expr, ["DisplayServer"])
 	if error != OK:
-		# TODO: OUTPUT ERROR
 		print(expression.get_error_text())
-		#return null
+		return [false, expression.get_error_text()]
 	var result = await expression.execute([DisplayServer], context)
 	if not expression.has_execute_failed():
 		# TODO: do something with this??
 		print("result: " + str(result))
+		return [true, "Completed"]
+	return [false, expression.get_error_text()]
