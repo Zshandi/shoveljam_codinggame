@@ -7,35 +7,31 @@ var expression = Expression.new()
 
 func _on_go_pressed() -> void:
 	var code = %Input.text
-	var result:Array
+	var result:ExecutionResult
 	var line_num := 1
 	
 	%Reset.show()
 	%GO.hide()
 	
 	%Output.show()
-	%Output.text = "Executing code:\n"
+	%Output.text = ""
 	
 	for line in code.split('\n'):
 		# Remove comments
 		line = line.split("#", true, 1)[0]
 		# Remove whitespace
 		line = line.strip_edges()
-		if line.strip_edges() == "":
+		if line == "":
 			# ignore empty lines
 			continue
 		
 		%Output.text += "%s: " % [line]
 		result = await execute_line(line)
-		if result[1] == null:
-			result[1] = "(Completed, no result)"
-		else:
-			result[1] = str(result[1])
 		
-		if result[0]:
-			%Output.text += "[color=green]" + result[1] + "[/color]\n"
+		if result.status == ResultStatus.Completed:
+			%Output.text += "[color=green]" + result.value_str + "[/color]\n"
 		else:
-			%Output.text += "[color=red]ERROR " + result[1] + "[/color]\n"
+			%Output.text += "[color=red]ERROR " + result.value_str + "[/color]\n"
 			break
 		line_num = line_num + 1
 	%Output.text += "Done!\n"
@@ -48,7 +44,7 @@ func _on_reset_pressed():
 	%Reset.hide()
 	%GO.show()
 
-func execute_line(line:String) -> Array:
+func execute_line(line:String) -> ExecutionResult:
 	
 	if line.contains("="): # TODO Account for ==
 		var sides = line.split("=")
@@ -61,15 +57,15 @@ func execute_line(line:String) -> Array:
 				var_name = left_hand_side.substr(4).strip_edges()
 				if var_name in context.user_variables:
 					# This is to account for dictionary assignment also adding the value
-					return [false, "re-define variable"]
+					return ExecutionResult.new("re-define variable", ResultStatus.Failed)
 			else:
 				if !(var_name in context.user_variables):
 					# This is to account for dictionary assignment also adding the value
-					return [false, "assignment to undefined variable"]
+					return ExecutionResult.new("assignment to undefined variable", ResultStatus.Failed)
 			
 			line = "user_variables.set(\""+var_name+"\", "+variable_value+")"
 		else:
-			return [false, "invalid assign"]
+			return ExecutionResult.new("invalid assign", ResultStatus.Failed)
 	else:
 		line = replace_vars_with_dictionaries(line)
 	
@@ -85,11 +81,37 @@ func replace_vars_with_dictionaries(expr:String) -> String:
 	
 	return expr
 
-func execute_expression(expr:String) -> Array:
+func execute_expression(expr:String) -> ExecutionResult:
 	var error = expression.parse(expr, ["DisplayServer"])
 	if error != OK:
-		return [false, "Parse error: " + expression.get_error_text()]
+		return ExecutionResult.new("Parse error: " + expression.get_error_text(), ResultStatus.Failed)
 	var result = await expression.execute([DisplayServer], context)
 	if not expression.has_execute_failed():
-		return [true, result]
-	return [false, expression.get_error_text()]
+		return ExecutionResult.new(result)
+	return ExecutionResult.new(expression.get_error_text(), ResultStatus.Failed)
+
+enum ResultStatus {
+	Completed,
+	Failed,
+	Skipped
+}
+
+class ExecutionResult:
+	extends RefCounted
+	
+	func _init(value_p:Variant, status_p:ResultStatus = ResultStatus.Completed) -> void:
+		status = status_p
+		value = value_p
+		if value == null:
+			if status == ResultStatus.Completed:
+				value_str = "(Completed, no result)"
+			elif status == ResultStatus.Failed:
+				value_str = "Unknown error"
+			else:
+				value_str = "Skipped"
+		else:
+			value_str = str(value)
+	
+	var status:ResultStatus
+	var value:Variant
+	var value_str:String
