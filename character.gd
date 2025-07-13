@@ -15,7 +15,8 @@ var movement_speed := 50
 var user_variables:Dictionary = {}
 
 func _ready() -> void:
-	pass
+	var controls = get_tree().get_first_node_in_group(&"Controls")
+	controls.context = self
 
 func _physics_process(delta: float) -> void:
 	move_and_slide()

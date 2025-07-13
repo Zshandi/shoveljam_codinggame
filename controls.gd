@@ -10,29 +10,46 @@ func _on_go_pressed() -> void:
 	var result:Array
 	var line_num := 1
 	
-	%Input.visible = false
-	%Output.visible = true
+	%Reset.show()
+	%GO.hide()
+	
+	%Output.show()
 	%Output.text = "Executing code:\n"
 	
 	for line in code.split('\n'):
+		# Remove comments
+		line = line.split("#", true, 1)[0]
+		# Remove whitespace
+		line = line.strip_edges()
 		if line.strip_edges() == "":
 			# ignore empty lines
 			continue
-		print("executing line ", line_num, ": ")
+		
+		%Output.text += "%s: " % [line]
 		result = await execute_line(line)
-		if result[0]:
-			%Output.text += "[color=green]%s: %s[/color]\n" % [line, result[1]]
+		if result[1] == null:
+			result[1] = "(Completed, no result)"
 		else:
-			%Output.text += "[color=red]%s: ERROR %s[/color]\n" % [line, result[1]]
+			result[1] = str(result[1])
+		
+		if result[0]:
+			%Output.text += "[color=green]" + result[1] + "[/color]\n"
+		else:
+			%Output.text += "[color=red]ERROR " + result[1] + "[/color]\n"
 			break
 		line_num = line_num + 1
-	%Output.text += "Finished!\n"
+	%Output.text += "Done!\n"
 
 func _on_reset_pressed():
-	get_tree().reload_current_scene()
+	LevelManager.load_current()
+	%Output.text = ""
+	%Input.show()
+	
+	%Reset.hide()
+	%GO.show()
 
 func execute_line(line:String) -> Array:
-	line = line.strip_edges()
+	
 	if line.contains("="): # TODO Account for ==
 		var sides = line.split("=")
 		if len(sides) == 2:
@@ -60,7 +77,7 @@ func execute_line(line:String) -> Array:
 	return await execute_expression(line)
 
 func replace_vars_with_dictionaries(expr:String) -> String:
-	# TODO: Fix this to match against full word?
+	# TODO: There's a better way to do this...
 	for var_name in context.user_variables.keys():
 		var regex = RegEx.new()
 		regex.compile("\\b" + var_name + "\\b")
@@ -71,11 +88,8 @@ func replace_vars_with_dictionaries(expr:String) -> String:
 func execute_expression(expr:String) -> Array:
 	var error = expression.parse(expr, ["DisplayServer"])
 	if error != OK:
-		print(expression.get_error_text())
-		return [false, expression.get_error_text()]
+		return [false, "Parse error: " + expression.get_error_text()]
 	var result = await expression.execute([DisplayServer], context)
 	if not expression.has_execute_failed():
-		# TODO: do something with this??
-		print("result: " + str(result))
-		return [true, "Completed"]
+		return [true, result]
 	return [false, expression.get_error_text()]
