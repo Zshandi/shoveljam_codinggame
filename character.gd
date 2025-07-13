@@ -2,6 +2,13 @@ extends CharacterBody2D
 
 const TILE_WIDTH = 32
 
+enum Direction {
+	RIGHT,
+	DOWN,
+	LEFT,
+	UP
+}
+
 @export
 var movement_speed := 50
 
@@ -13,7 +20,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	move_and_slide()
 
-func move(tiles:int, direction:float):
-	velocity = Vector2(cos(deg_to_rad(direction)),-sin(deg_to_rad(direction)))*movement_speed
-	await get_tree().create_timer((float(tiles*TILE_WIDTH)/movement_speed)).timeout
+func move(direction:Direction = Direction.RIGHT, num_tiles:int = 1):
+	velocity = Vector2.RIGHT.rotated(direction * PI/2)*movement_speed
+	await get_tree().create_timer((float(num_tiles*TILE_WIDTH)/movement_speed)).timeout
 	velocity = Vector2.ZERO
