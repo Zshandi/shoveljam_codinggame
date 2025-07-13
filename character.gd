@@ -1,35 +1,19 @@
 extends CharacterBody2D
 
-@export
-var movement_amount := 60
+const TILE_WIDTH = 32
 
 @export
-var movement_time := 0.2
-
-@export
-var jump_speed := 600
-
-var movement_speed := 0.0
+var movement_speed := 50
 
 var user_variables:Dictionary = {}
 
 func _ready() -> void:
-	movement_speed = movement_amount / movement_time
+	pass
 
 func _physics_process(delta: float) -> void:
-	velocity.y += get_gravity().y
 	move_and_slide()
 
-func jump(force:float = jump_speed) -> void:
-	velocity.y = -force
-
-func move_left(amount:float = 1) -> void:
-	await move(-amount)
-
-func move_right(amount:float = 1) -> void:
-	await move(amount)
-
-func move(dir_amount:float):
-	velocity.x = movement_speed * sign(dir_amount)
-	await get_tree().create_timer(0.25 * abs(dir_amount)).timeout
-	velocity.x = 0
+func move(tiles:int, direction:float):
+	velocity = Vector2(cos(deg_to_rad(direction)),-sin(deg_to_rad(direction)))*movement_speed
+	await get_tree().create_timer((float(tiles*TILE_WIDTH)/movement_speed)).timeout
+	velocity = Vector2.ZERO
