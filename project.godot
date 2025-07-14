@@ -10,7 +10,8 @@ config_version=5
 
 [application]
 
-config/name="ShovelJam_CodingGame"
+config/name="Code Crusader"
+config/version="0.0.1"
 run/main_scene="res://test_scene.tscn"
 config/features=PackedStringArray("4.4", "Mobile")
 config/icon="res://icon.svg"
