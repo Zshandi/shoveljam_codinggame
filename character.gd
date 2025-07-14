@@ -21,7 +21,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	move_and_slide()
 
-func move(direction:Direction = Direction.RIGHT, num_tiles:int = 1) -> String:
+func move(direction:Direction, num_tiles:int = 1) -> String:
 	velocity = Vector2.RIGHT.rotated(direction * PI/2)*movement_speed
 	await get_tree().create_timer((float(num_tiles*TILE_WIDTH)/movement_speed)).timeout
 	velocity = Vector2.ZERO

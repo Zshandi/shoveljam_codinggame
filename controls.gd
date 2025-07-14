@@ -46,9 +46,12 @@ func _on_reset_pressed():
 
 func execute_line(line:String) -> ExecutionResult:
 	
-	if line.contains("="): # TODO Account for ==
-		var sides = line.split("=")
-		if len(sides) == 2:
+	var regex = RegEx.new()
+	regex.compile("[^=!><]=[^=!><]")
+	
+	if regex.search(line) != null:
+		var sides = line.split("=", true, 1)
+		if len(sides) >= 2:
 			var left_hand_side = sides[0].strip_edges()
 			var variable_value = replace_vars_with_dictionaries(sides[1].strip_edges())
 			var var_name = left_hand_side
@@ -63,9 +66,21 @@ func execute_line(line:String) -> ExecutionResult:
 					# This is to account for dictionary assignment also adding the value
 					return ExecutionResult.new("assignment to undefined variable", ResultStatus.Failed)
 			
-			line = "user_variables.set(\""+var_name+"\", "+variable_value+")"
+			var evaluated_value = await execute_expression(variable_value)
+			
+			if evaluated_value.status == ResultStatus.Completed:
+				context.user_variables[var_name] = evaluated_value.value
+				return evaluated_value
+			else:
+				return evaluated_value
 		else:
 			return ExecutionResult.new("invalid assign", ResultStatus.Failed)
+	elif line.begins_with("var "):
+		var var_name = line.substr(4).strip_edges()
+		if var_name in context.user_variables:
+			# This is to account for dictionary assignment also adding the value
+			return ExecutionResult.new("re-define variable", ResultStatus.Failed)
+		context.user_variables[var_name] = null
 	else:
 		line = replace_vars_with_dictionaries(line)
 	

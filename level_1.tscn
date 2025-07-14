@@ -27,11 +27,17 @@ tile_set = SubResource("TileSet_2nij2")
 
 [node name="Character" type="CharacterBody2D" parent="." groups=["Character"]]
 unique_name_in_owner = true
-position = Vector2(570, 195)
+position = Vector2(530, 238)
 motion_mode = 1
 script = ExtResource("2_hn12h")
 movement_speed = 150
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Character"]
-position = Vector2(-40, 43)
 shape = SubResource("RectangleShape2D_sasra")
+
+[node name="TextureRect" type="ColorRect" parent="Character"]
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+color = Color(0.756863, 1, 1, 1)
