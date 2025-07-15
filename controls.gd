@@ -35,6 +35,7 @@ func _on_go_pressed() -> void:
 			break
 		line_num = line_num + 1
 	%Output.text += "Done!\n"
+	update_var_display()
 
 func _on_reset_pressed():
 	LevelManager.load_current()
@@ -104,6 +105,11 @@ func execute_expression(expr:String) -> ExecutionResult:
 	if not expression.has_execute_failed():
 		return ExecutionResult.new(result)
 	return ExecutionResult.new(expression.get_error_text(), ResultStatus.Failed)
+	
+func update_var_display() -> void:
+	%Variables.text = ""
+	for variable in context.user_variables:
+		%Variables.text += "%s: %s\n" % [variable, str(context.user_variables[variable])]
 
 enum ResultStatus {
 	Completed,

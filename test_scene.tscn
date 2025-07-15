@@ -1,12 +1,18 @@
-[gd_scene load_steps=3 format=3 uid="uid://bfsi8tw4oi3ni"]
+[gd_scene load_steps=4 format=3 uid="uid://bfsi8tw4oi3ni"]
 
 [ext_resource type="Script" uid="uid://cn807bber78gd" path="res://controls.gd" id="1_coq8p"]
+[ext_resource type="Script" uid="uid://ncp0dkbfngf1" path="res://camera.gd" id="1_sasra"]
 [ext_resource type="CodeHighlighter" uid="uid://bp3petfrnrf4" path="res://syntax_highlighter.tres" id="4_2nij2"]
 
 [node name="Node2D" type="Node2D"]
 
 [node name="Levels" type="Node2D" parent="."]
 unique_name_in_owner = true
+
+[node name="Camera" type="Camera2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(576, 324)
+script = ExtResource("1_sasra")
 
 [node name="Controls" type="CanvasLayer" parent="." groups=["Controls"]]
 unique_name_in_owner = true
@@ -21,6 +27,8 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 split_offset = 300
+dragger_visibility = 1
+drag_area_offset = 30
 drag_area_highlight_in_editor = true
 
 [node name="MarginContainer" type="MarginContainer" parent="Controls/VSplitContainer"]
@@ -38,24 +46,41 @@ size_flags_vertical = 3
 [node name="TabContainer" type="TabContainer" parent="Controls/VSplitContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-current_tab = 0
+current_tab = 1
 
-[node name="Input" type="TextEdit" parent="Controls/VSplitContainer/VBoxContainer/TabContainer"]
+[node name="Input" type="CodeEdit" parent="Controls/VSplitContainer/VBoxContainer/TabContainer"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.803922, 0.807843, 0.823529, 1)
 text = "move(Direction.RIGHT)"
 syntax_highlighter = ExtResource("4_2nij2")
+symbol_tooltip_on_hover = true
+gutters_draw_breakpoints_gutter = true
+gutters_draw_bookmarks = true
+gutters_draw_executing_lines = true
+gutters_draw_line_numbers = true
+gutters_draw_fold_gutter = true
+code_completion_enabled = true
+indent_use_spaces = true
+indent_automatic = true
+auto_brace_completion_enabled = true
+auto_brace_completion_highlight_matching = true
 metadata/_tab_index = 0
 
 [node name="Output" type="RichTextLabel" parent="Controls/VSplitContainer/VBoxContainer/TabContainer"]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 size_flags_vertical = 3
 bbcode_enabled = true
 metadata/_tab_index = 1
+
+[node name="Variables" type="RichTextLabel" parent="Controls/VSplitContainer/VBoxContainer/TabContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+metadata/_tab_index = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Controls/VSplitContainer/VBoxContainer"]
 layout_mode = 2
