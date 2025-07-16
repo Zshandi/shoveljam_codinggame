@@ -1,7 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://bfsi8tw4oi3ni"]
+[gd_scene load_steps=8 format=3 uid="uid://bfsi8tw4oi3ni"]
 
 [ext_resource type="Script" uid="uid://cn807bber78gd" path="res://controls.gd" id="1_coq8p"]
 [ext_resource type="Script" uid="uid://ncp0dkbfngf1" path="res://camera.gd" id="1_sasra"]
+[ext_resource type="Script" uid="uid://cwhe24e11hw4e" path="res://level_region.gd" id="3_2nij2"]
+[ext_resource type="FontFile" uid="uid://gm7xtq7qb10v" path="res://assets/fonts/JetBrainsMono-2.304/fonts/ttf/JetBrainsMono-Regular.ttf" id="3_coq8p"]
 [ext_resource type="CodeHighlighter" uid="uid://bp3petfrnrf4" path="res://syntax_highlighter.tres" id="4_2nij2"]
 
 [sub_resource type="CodeHighlighter" id="CodeHighlighter_sasra"]
@@ -38,29 +40,33 @@ split_offset = 300
 dragger_visibility = 1
 drag_area_highlight_in_editor = true
 
-[node name="MarginContainer" type="MarginContainer" parent="Controls/VSplitContainer"]
+[node name="LevelRegion" type="MarginContainer" parent="Controls/VSplitContainer"]
+unique_name_in_owner = true
 clip_children = 1
 layout_mode = 2
+script = ExtResource("3_2nij2")
 
-[node name="TextureRect" type="TextureRect" parent="Controls/VSplitContainer/MarginContainer"]
+[node name="TextureRect" type="TextureRect" parent="Controls/VSplitContainer/LevelRegion"]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Controls/VSplitContainer"]
+[node name="ControlsRegion" type="VBoxContainer" parent="Controls/VSplitContainer"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(50, 200)
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="TabContainer" type="TabContainer" parent="Controls/VSplitContainer/VBoxContainer"]
+[node name="TabContainer" type="TabContainer" parent="Controls/VSplitContainer/ControlsRegion"]
 layout_mode = 2
 size_flags_vertical = 3
 current_tab = 0
 
-[node name="Input" type="CodeEdit" parent="Controls/VSplitContainer/VBoxContainer/TabContainer"]
+[node name="Input" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.803922, 0.807843, 0.823529, 1)
-text = "move(Direction.RIGHT)"
+theme_override_fonts/font = ExtResource("3_coq8p")
+placeholder_text = "move(Direction.RIGHT)"
 syntax_highlighter = ExtResource("4_2nij2")
 highlight_all_occurrences = true
 highlight_current_line = true
@@ -77,11 +83,12 @@ auto_brace_completion_enabled = true
 auto_brace_completion_highlight_matching = true
 metadata/_tab_index = 0
 
-[node name="Output" type="CodeEdit" parent="Controls/VSplitContainer/VBoxContainer/TabContainer"]
+[node name="Output" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_fonts/font = ExtResource("3_coq8p")
 editable = false
 syntax_highlighter = SubResource("CodeHighlighter_sasra")
 highlight_all_occurrences = true
@@ -95,27 +102,28 @@ auto_brace_completion_enabled = true
 auto_brace_completion_highlight_matching = true
 metadata/_tab_index = 1
 
-[node name="Variables" type="CodeEdit" parent="Controls/VSplitContainer/VBoxContainer/TabContainer"]
+[node name="Variables" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
+theme_override_fonts/font = ExtResource("3_coq8p")
 editable = false
 syntax_highlighter = SubResource("CodeHighlighter_coq8p")
 highlight_all_occurrences = true
 highlight_current_line = true
 metadata/_tab_index = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Controls/VSplitContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Controls/VSplitContainer/ControlsRegion"]
 layout_mode = 2
 
-[node name="GO" type="Button" parent="Controls/VSplitContainer/VBoxContainer/HBoxContainer"]
+[node name="GO" type="Button" parent="Controls/VSplitContainer/ControlsRegion/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 40
 text = "GO"
 
-[node name="Reset" type="Button" parent="Controls/VSplitContainer/VBoxContainer/HBoxContainer"]
+[node name="Reset" type="Button" parent="Controls/VSplitContainer/ControlsRegion/HBoxContainer"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -123,5 +131,11 @@ size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 40
 text = "RESET"
 
-[connection signal="pressed" from="Controls/VSplitContainer/VBoxContainer/HBoxContainer/GO" to="Controls" method="_on_go_pressed"]
-[connection signal="pressed" from="Controls/VSplitContainer/VBoxContainer/HBoxContainer/Reset" to="Controls" method="_on_reset_pressed"]
+[connection signal="mouse_entered" from="Controls/VSplitContainer/LevelRegion" to="Controls/VSplitContainer/LevelRegion" method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="Controls/VSplitContainer/LevelRegion" to="Controls/VSplitContainer/LevelRegion" method="_on_mouse_exited"]
+[connection signal="mouse_pressed" from="Controls/VSplitContainer/LevelRegion" to="Camera" method="_on_level_region_mouse_pressed"]
+[connection signal="mouse_released" from="Controls/VSplitContainer/LevelRegion" to="Camera" method="_on_level_region_mouse_released"]
+[connection signal="mouse_wheel_down" from="Controls/VSplitContainer/LevelRegion" to="Camera" method="_on_level_region_mouse_wheel_down"]
+[connection signal="mouse_wheel_up" from="Controls/VSplitContainer/LevelRegion" to="Camera" method="_on_level_region_mouse_wheel_up"]
+[connection signal="pressed" from="Controls/VSplitContainer/ControlsRegion/HBoxContainer/GO" to="Controls" method="_on_go_pressed"]
+[connection signal="pressed" from="Controls/VSplitContainer/ControlsRegion/HBoxContainer/Reset" to="Controls" method="_on_reset_pressed"]
