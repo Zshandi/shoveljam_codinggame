@@ -6,13 +6,13 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sasra"]
 size = Vector2(16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_wa5vi"]
-atlas = ExtResource("2_pjt0s")
-region = Rect2(0, 0, 16, 16)
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_wfnr8"]
 atlas = ExtResource("2_pjt0s")
 region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wa5vi"]
+atlas = ExtResource("2_pjt0s")
+region = Rect2(0, 0, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_px5sl"]
 atlas = ExtResource("2_pjt0s")
@@ -22,10 +22,10 @@ region = Rect2(32, 0, 16, 16)
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_wa5vi")
+"texture": SubResource("AtlasTexture_wfnr8")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_wfnr8")
+"texture": SubResource("AtlasTexture_wa5vi")
 }],
 "loop": false,
 "name": &"blink",
@@ -43,13 +43,20 @@ animations = [{
 [node name="Character" type="CharacterBody2D" groups=["Character"]]
 motion_mode = 1
 script = ExtResource("1_glpr6")
-movement_speed = 150
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_sasra")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+unique_name_in_owner = true
 sprite_frames = SubResource("SpriteFrames_0qfo5")
 animation = &"blink"
-frame = 1
-frame_progress = 1.0
+
+[node name="AnimTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+autostart = true
+
+[node name="MoveTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+
+[connection signal="timeout" from="AnimTimer" to="." method="_on_timer_timeout"]

@@ -144,12 +144,18 @@ func execute_expression(expr:String) -> ExecutionResult:
 	var result = await expression.execute([DisplayServer], context)
 	if not expression.has_execute_failed():
 		return ExecutionResult.new(result)
+	# something failed
+	context.trigger_death()
 	return ExecutionResult.new(expression.get_error_text(), ResultStatus.Failed)
 	
 func update_var_display() -> void:
 	%Variables.text = ""
 	for variable in context.user_variables:
 		%Variables.text += "%s: %s\n" % [variable, str(context.user_variables[variable])]
+		
+func on_player_death(line) -> void:
+	# stop executing any code
+	pass
 
 enum ResultStatus {
 	Completed,
