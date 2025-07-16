@@ -29,7 +29,7 @@ func move(direction:Direction, num_tiles:int = 1) -> String:
 	%MoveTimer.start((float(num_tiles*TILE_WIDTH)/movement_speed))
 	await %MoveTimer.timeout
 	velocity = Vector2.ZERO
-	return "Moved %d tile%s to the %s" % [num_tiles,"" if num_tiles == 1 else "s", Direction.keys()[direction]]
+	return "Moved %d tile%s %s" % [num_tiles,"" if num_tiles == 1 else "s", Direction.keys()[direction]]
 	
 func grab() -> String:
 	return "not implemented... yet!"

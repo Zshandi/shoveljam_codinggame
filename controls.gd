@@ -10,7 +10,9 @@ const CONTROL_FLOW_KEYWORD_COLOUR = Color(0xff8cccff)
 const MEMBER_KEYWORD_COLOUR = Color(0xbce0ffff)
 
 func _ready():
-	for x in [%Input,%Output,%Variables]:
+	%Input.grab_focus()
+	#sdsds
+	for x in [%Input,%Output,%Variables, %Docs]:
 		x.syntax_highlighter.function_color = Color(0x57b3ffff)
 		x.syntax_highlighter.number_color = Color(0xa1ffe0ff)
 		x.syntax_highlighter.member_variable_color = Color(0xbce0ffff)
@@ -25,6 +27,8 @@ func _ready():
 		x.syntax_highlighter.add_keyword_color("false",KEYWORD_COLOUR)
 		x.syntax_highlighter.add_keyword_color("in",KEYWORD_COLOUR)
 		x.syntax_highlighter.add_keyword_color("func",KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("class",KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("enum",KEYWORD_COLOUR)
 		x.syntax_highlighter.add_keyword_color("const",KEYWORD_COLOUR)
 		x.syntax_highlighter.add_keyword_color("await",KEYWORD_COLOUR)
 		x.syntax_highlighter.add_keyword_color("and",KEYWORD_COLOUR)
@@ -43,6 +47,11 @@ func _ready():
 		x.syntax_highlighter.add_keyword_color("continue",CONTROL_FLOW_KEYWORD_COLOUR)
 		x.syntax_highlighter.add_keyword_color("pass",CONTROL_FLOW_KEYWORD_COLOUR)
 		x.syntax_highlighter.add_keyword_color("while",CONTROL_FLOW_KEYWORD_COLOUR)
+
+func _input(event: InputEvent) -> void:
+	if event.is_action("Go_Keyboard") and event.is_pressed():
+		if %GO.visible:
+			_on_go_pressed()
 
 func _on_go_pressed() -> void:
 	var code = %Input.text
@@ -69,11 +78,16 @@ func _on_go_pressed() -> void:
 		
 		if result.status == ResultStatus.Completed:
 			%Output.text += "#" + result.value_str + "\n"
-		else:
+		elif result.status == ResultStatus.Failed:
 			%Output.text += "!!ERROR " + result.value_str + "\n"
 			break
 		line_num = line_num + 1
-	%Output.text += "Done!\n"
+		if context.dead:
+			break
+	if context.dead:
+		%Output.text += "ERROR: You died!\n"
+	else:
+		%Output.text += "Done!\n"
 	update_var_display()
 
 func _on_reset_pressed():
@@ -83,6 +97,8 @@ func _on_reset_pressed():
 	
 	%Reset.hide()
 	%GO.show()
+
+
 
 func execute_line(line:String) -> ExecutionResult:
 	
