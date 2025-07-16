@@ -5,6 +5,44 @@ var context:Node = null
 
 var expression = Expression.new()
 
+const KEYWORD_COLOUR = Color(0xff7085ff)
+const CONTROL_FLOW_KEYWORD_COLOUR = Color(0xff8cccff)
+const MEMBER_KEYWORD_COLOUR = Color(0xbce0ffff)
+
+func _ready():
+	for x in [%Input,%Output,%Variables]:
+		x.syntax_highlighter.function_color = Color(0x57b3ffff)
+		x.syntax_highlighter.number_color = Color(0xa1ffe0ff)
+		x.syntax_highlighter.member_variable_color = Color(0xbce0ffff)
+		x.syntax_highlighter.symbol_color = Color(0xabc9ffff)
+		
+		x.syntax_highlighter.add_color_region("\"","\"",Color(0xffeda1ff),true)
+		x.syntax_highlighter.add_color_region("#","",Color(0xcdcfd280),true)
+		
+		x.syntax_highlighter.add_keyword_color("var",KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("true",KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("false",KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("in",KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("func",KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("const",KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("await",KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("and",KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("or",KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("not",KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("null",KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("self",KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("ERROR",KEYWORD_COLOUR)
+		
+		x.syntax_highlighter.add_keyword_color("for",CONTROL_FLOW_KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("if",CONTROL_FLOW_KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("elif",CONTROL_FLOW_KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("else",CONTROL_FLOW_KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("return",CONTROL_FLOW_KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("break",CONTROL_FLOW_KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("continue",CONTROL_FLOW_KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("pass",CONTROL_FLOW_KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("while",CONTROL_FLOW_KEYWORD_COLOUR)
+
 func _on_go_pressed() -> void:
 	var code = %Input.text
 	var result:ExecutionResult
@@ -29,9 +67,9 @@ func _on_go_pressed() -> void:
 		result = await execute_line(line)
 		
 		if result.status == ResultStatus.Completed:
-			%Output.text += "[color=green]" + result.value_str + "[/color]\n"
+			%Output.text += "#" + result.value_str + "\n"
 		else:
-			%Output.text += "[color=red]ERROR " + result.value_str + "[/color]\n"
+			%Output.text += "#ERROR " + result.value_str + "\n"
 			break
 		line_num = line_num + 1
 	%Output.text += "Done!\n"
@@ -71,6 +109,7 @@ func execute_line(line:String) -> ExecutionResult:
 			
 			if evaluated_value.status == ResultStatus.Completed:
 				context.user_variables[var_name] = evaluated_value.value
+				%Input.syntax_highlighter.add_member_keyword_color(var_name,MEMBER_KEYWORD_COLOUR)
 				return evaluated_value
 			else:
 				return evaluated_value
