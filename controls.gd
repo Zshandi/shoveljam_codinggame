@@ -21,6 +21,7 @@ func _ready():
 		x.syntax_highlighter.add_color_region("\"","\"",Color(0xffeda1ff),true)
 		x.syntax_highlighter.add_color_region("#","",Color(0xcdcfd280),true)
 		x.syntax_highlighter.add_color_region("!!","",Color(0xff786bff),true)
+		x.syntax_highlighter.add_color_region("**","",Color(0x42ffc2ff),true)
 		
 		x.syntax_highlighter.add_keyword_color("var",KEYWORD_COLOUR)
 		x.syntax_highlighter.add_keyword_color("true",KEYWORD_COLOUR)
@@ -77,7 +78,7 @@ func _on_go_pressed() -> void:
 		result = await execute_line(line)
 		
 		if result.status == ResultStatus.Completed:
-			%Output.text += "#" + result.value_str + "\n"
+			%Output.text += "** " + result.value_str + "\n"
 		elif result.status == ResultStatus.Failed:
 			%Output.text += "!!ERROR " + result.value_str + "\n"
 			break
@@ -85,7 +86,7 @@ func _on_go_pressed() -> void:
 		if context.dead:
 			break
 	if context.dead:
-		%Output.text += "ERROR: You died!\n"
+		%Output.text += "!!ERROR: You crashed!\n"
 	else:
 		%Output.text += "Done!\n"
 	update_var_display()

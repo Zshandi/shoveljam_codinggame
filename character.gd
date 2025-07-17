@@ -25,10 +25,14 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 func move(direction:Direction, num_tiles:int = 1) -> String:
-	velocity = Vector2.RIGHT.rotated(direction * PI/2)*movement_speed
-	%MoveTimer.start((float(num_tiles*TILE_WIDTH)/movement_speed))
+	var distance = abs(float(num_tiles*TILE_WIDTH))
+	var initial_position = global_position
+	var angle = Vector2.RIGHT.rotated(direction * PI/2)*sign(num_tiles)
+	velocity = angle*movement_speed
+	%MoveTimer.start(distance/movement_speed)
 	await %MoveTimer.timeout
 	velocity = Vector2.ZERO
+	global_position = initial_position+(angle*distance)
 	return "Moved %d tile%s %s" % [num_tiles,"" if num_tiles == 1 else "s", Direction.keys()[direction]]
 	
 func grab() -> String:

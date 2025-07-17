@@ -6,7 +6,7 @@
 [ext_resource type="FontFile" uid="uid://gm7xtq7qb10v" path="res://assets/fonts/JetBrainsMono-2.304/fonts/ttf/JetBrainsMono-Regular.ttf" id="3_coq8p"]
 [ext_resource type="CodeHighlighter" uid="uid://bp3petfrnrf4" path="res://syntax_highlighter.tres" id="4_2nij2"]
 [ext_resource type="Script" uid="uid://bm4jhmns7n0ya" path="res://input.gd" id="6_7cbxl"]
-[ext_resource type="Script" uid="uid://c7llt3mqjv8fe" path="res://docs.gd" id="7_8pr8v"]
+[ext_resource type="Script" uid="uid://c7llt3mqjv8fe" path="res://code_unedit.gd" id="7_8pr8v"]
 
 [sub_resource type="CodeHighlighter" id="CodeHighlighter_sasra"]
 number_color = Color(0.486275, 0.756863, 0.678431, 1)
@@ -76,7 +76,7 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.803922, 0.807843, 0.823529, 1)
 theme_override_fonts/font = ExtResource("3_coq8p")
-placeholder_text = "move(Direction.RIGHT)"
+placeholder_text = "Type your code here"
 syntax_highlighter = ExtResource("4_2nij2")
 highlight_all_occurrences = true
 highlight_current_line = true
@@ -101,10 +101,8 @@ visible = false
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_fonts/font = ExtResource("3_coq8p")
-editable = false
+placeholder_text = "Output will appear here"
 syntax_highlighter = SubResource("CodeHighlighter_sasra")
-highlight_all_occurrences = true
-highlight_current_line = true
 gutters_draw_breakpoints_gutter = true
 gutters_draw_executing_lines = true
 gutters_draw_line_numbers = true
@@ -112,6 +110,7 @@ gutters_draw_fold_gutter = true
 indent_use_spaces = true
 auto_brace_completion_enabled = true
 auto_brace_completion_highlight_matching = true
+script = ExtResource("7_8pr8v")
 metadata/_tab_index = 1
 
 [node name="Variables" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer"]
@@ -119,10 +118,14 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_coq8p")
-editable = false
+placeholder_text = "Variables will appear here"
 syntax_highlighter = SubResource("CodeHighlighter_coq8p")
-highlight_all_occurrences = true
-highlight_current_line = true
+gutters_draw_breakpoints_gutter = true
+gutters_draw_bookmarks = true
+gutters_draw_executing_lines = true
+gutters_draw_line_numbers = true
+gutters_draw_fold_gutter = true
+script = ExtResource("7_8pr8v")
 metadata/_tab_index = 2
 
 [node name="Docs" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer"]
@@ -142,15 +145,12 @@ text = "class Character:
 		LEFT,
 		UP
 	}"
-scroll_vertical = 1.0
 syntax_highlighter = SubResource("CodeHighlighter_7cbxl")
-highlight_all_occurrences = true
-highlight_current_line = true
 gutters_draw_breakpoints_gutter = true
+gutters_draw_bookmarks = true
 gutters_draw_executing_lines = true
 gutters_draw_line_numbers = true
 gutters_draw_fold_gutter = true
-delimiter_strings = Array[String](["\" \"", "' '"])
 indent_use_spaces = true
 auto_brace_completion_enabled = true
 auto_brace_completion_highlight_matching = true
@@ -184,6 +184,5 @@ text = "RESET"
 [connection signal="symbol_hovered" from="Controls/VSplitContainer/ControlsRegion/TabContainer/Input" to="Controls/VSplitContainer/ControlsRegion/TabContainer/Input" method="_on_symbol_hovered"]
 [connection signal="symbol_lookup" from="Controls/VSplitContainer/ControlsRegion/TabContainer/Input" to="Controls/VSplitContainer/ControlsRegion/TabContainer/Input" method="_on_symbol_lookup"]
 [connection signal="text_changed" from="Controls/VSplitContainer/ControlsRegion/TabContainer/Input" to="Controls/VSplitContainer/ControlsRegion/TabContainer/Input" method="_on_text_changed"]
-[connection signal="text_changed" from="Controls/VSplitContainer/ControlsRegion/TabContainer/Docs" to="Controls/VSplitContainer/ControlsRegion/TabContainer/Docs" method="_on_text_changed"]
 [connection signal="pressed" from="Controls/VSplitContainer/ControlsRegion/HBoxContainer/GO" to="Controls" method="_on_go_pressed"]
 [connection signal="pressed" from="Controls/VSplitContainer/ControlsRegion/HBoxContainer/Reset" to="Controls" method="_on_reset_pressed"]
