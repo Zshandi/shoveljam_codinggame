@@ -48,6 +48,7 @@ func _ready():
 		x.syntax_highlighter.add_keyword_color("continue",CONTROL_FLOW_KEYWORD_COLOUR)
 		x.syntax_highlighter.add_keyword_color("pass",CONTROL_FLOW_KEYWORD_COLOUR)
 		x.syntax_highlighter.add_keyword_color("while",CONTROL_FLOW_KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("repeat",CONTROL_FLOW_KEYWORD_COLOUR)
 
 func _input(event: InputEvent) -> void:
 	if event.is_action("Go_Keyboard") and event.is_pressed():
