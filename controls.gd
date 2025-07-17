@@ -55,6 +55,8 @@ func _input(event: InputEvent) -> void:
 			_on_go_pressed()
 		else:
 			_on_reset_pressed()
+		
+		get_viewport().set_input_as_handled()
 
 func _on_go_pressed() -> void:
 	
@@ -88,12 +90,15 @@ func set_output(line_num:int, output:Variant):
 		print_debug("output line ", line_num, ": ", output)
 	%Input.set_line(line_num, line)
 
+var has_error := false
+
 func output_result(line_num:int, result:ExecutionResult) -> void:
 	if result.status == ResultStatus.Completed:
 		set_output(line_num, result.value_str)
 	elif result.status == ResultStatus.Failed:
 		set_output(line_num, "!!ERROR " + result.value_str)
 		%Input.text = %Input.text + "\n!!ERROR " + result.value_str
+		has_error = true
 
 func reset_output():
 	%Output.text = ""
@@ -101,6 +106,7 @@ func reset_output():
 		set_output(line_num, null)
 		if %Input.get_line(line_num).begins_with("!!ERROR"):
 			%Input.remove_line_at(line_num)
+	has_error = false
 
 func skip_block(line_num:int, until_indent_level:int) -> int:
 	while  line_num < %Input.get_line_count():
@@ -223,6 +229,27 @@ func execute_block(line_num:int, expected_indent_level:int) -> int:
 		was_if_consumed = false
 		
 		## Check for if/elif/else END ##
+		
+		## Repeat loop BEGIN ##
+		
+		var repeat_regex := RegEx.new()
+		repeat_regex.compile("^repeat (.*):")
+		var repeat_regex_result := repeat_regex.search(stripped_line)
+		if repeat_regex_result != null:
+			var condition = repeat_regex_result.get_string(1)
+			var condition_result = await execute_expression(condition)
+			
+			output_result(line_num, condition_result)
+			
+			var line_num_prev = line_num
+			for i in range(condition_result.value):
+				line_num = await execute_block(line_num_prev + 1, expected_indent_level + 1)
+				if has_error:
+					return %Input.get_line_count()
+			
+			continue
+		
+		## Repeat loop END ##
 		
 		## Finally, just evaluate the single line
 		

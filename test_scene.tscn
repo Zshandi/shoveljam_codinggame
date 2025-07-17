@@ -157,10 +157,18 @@ size_flags_vertical = 3
 theme_override_fonts/font = ExtResource("3_coq8p")
 theme_override_styles/read_only = SubResource("StyleBoxEmpty_7cbxl")
 text = "
-# Move character in a given direction by n tiles
-move(direction, n)
+# Move character in a given direction one tile
+move(direction)
 # Possible values for direction include
-Direction.RIGHT, Direction.LEFT, Direction.UP, Direction.DOWN"
+Direction.RIGHT, Direction.LEFT, Direction.UP, Direction.DOWN
+
+# Example: move right one tile
+move(Direction.RIGHT)
+
+#Example: move up 7 tiles
+repeat 7:
+	move(Direction.UP)"
+scroll_vertical = 12.0
 syntax_highlighter = SubResource("CodeHighlighter_7cbxl")
 gutters_draw_breakpoints_gutter = true
 gutters_draw_bookmarks = true

@@ -36,7 +36,8 @@ func _physics_process(delta: float) -> void:
 			global_position = goal_position
 		
 
-func move(direction:Direction, num_tiles:int = 1) -> String:
+func move(direction:Direction) -> String:
+	var num_tiles = 1
 	distance_travelled = 0.0
 	goal_distance = abs(float(num_tiles*TILE_WIDTH))
 	var angle = Vector2.RIGHT.rotated(direction * PI/2)*sign(num_tiles)
