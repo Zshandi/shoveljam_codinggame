@@ -131,6 +131,8 @@ func execute_block(line_num:int, expected_indent_level:int) -> int:
 		
 		var stripped_line = line.split("#", true, 1)[0].strip_edges()
 		
+		## Pre-checks BEGIN ##
+		
 		# Get indentation
 		var current_indent = 0
 		for character in line:
@@ -147,6 +149,7 @@ func execute_block(line_num:int, expected_indent_level:int) -> int:
 		elif current_indent < expected_indent_level:
 			break
 		
+		# Ignore empty
 		if stripped_line == "":
 			# ignore empty lines
 			line_num = line_num + 1
@@ -154,11 +157,17 @@ func execute_block(line_num:int, expected_indent_level:int) -> int:
 			was_if_consumed = false
 			continue
 		
+		## Pre-checks END ##
+		
+		## Check for if/elif/else BEGIN ##
+		
+		# Check for if
 		var if_regex := RegEx.new()
 		if_regex.compile("^if (.*):")
 		var if_regex_result := if_regex.search(stripped_line)
 		
 		if if_regex_result == null:
+			# No if found, so check for elif
 			var elif_regex := RegEx.new()
 			elif_regex.compile("^elif (.*):")
 			var elif_regex_result = elif_regex.search(stripped_line)
@@ -170,6 +179,7 @@ func execute_block(line_num:int, expected_indent_level:int) -> int:
 				if_regex_result = elif_regex_result
 		
 		if if_regex_result != null:
+			
 			was_if = true
 			if was_if_consumed:
 				line_num = skip_block(line_num + 1, expected_indent_level)
@@ -183,14 +193,16 @@ func execute_block(line_num:int, expected_indent_level:int) -> int:
 			if context.dead or condition_result.status == ResultStatus.Failed:
 				return %Input.get_line_count()
 			
-			if condition_result.value:
+			if condition_result.value == true:
 				line_num = await execute_block(line_num + 1, expected_indent_level + 1)
+				# If gets consumed once it's true, which means no further ifs will be evaluated
 				was_if_consumed = true
 			else:
 				line_num = skip_block(line_num + 1, expected_indent_level)
 			
 			continue
 		
+		# no if or elif, so check for else
 		var else_regex := RegEx.new()
 		else_regex.compile("^else:")
 		var else_regex_result := else_regex.search(stripped_line)
@@ -209,6 +221,10 @@ func execute_block(line_num:int, expected_indent_level:int) -> int:
 		
 		was_if = false
 		was_if_consumed = false
+		
+		## Check for if/elif/else END ##
+		
+		## Finally, just evaluate the single line
 		
 		var result := await execute_line(stripped_line)
 		output_result(line_num, result)
