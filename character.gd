@@ -32,7 +32,8 @@ func move(direction:Direction, num_tiles:int = 1) -> String:
 	%MoveTimer.start(distance/movement_speed)
 	await %MoveTimer.timeout
 	velocity = Vector2.ZERO
-	global_position = initial_position+(angle*distance)
+	if not dead:
+		global_position = initial_position+(angle*distance)
 	return "Moved %d tile%s %s" % [num_tiles,"" if num_tiles == 1 else "s", Direction.keys()[direction]]
 	
 func grab() -> String:
@@ -42,7 +43,7 @@ func use(item) -> String:
 	return "not implemented... yet!"
 	
 func trigger_death():
-	emit_signal("player_death","null")
+	emit_signal("player_death")
 	dead = true
 	%AnimatedSprite2D.play("death")
 	%MoveTimer.stop()

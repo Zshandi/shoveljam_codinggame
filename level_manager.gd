@@ -21,4 +21,4 @@ func load_current():
 	
 	var level = level_list[current_level].instantiate()
 	
-	add_child(level)
+	call_deferred("add_child",level)
