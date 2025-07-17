@@ -1,12 +1,17 @@
-[gd_scene load_steps=12 format=3 uid="uid://bfsi8tw4oi3ni"]
+[gd_scene load_steps=15 format=3 uid="uid://bfsi8tw4oi3ni"]
 
 [ext_resource type="Script" uid="uid://cn807bber78gd" path="res://controls.gd" id="1_coq8p"]
 [ext_resource type="Script" uid="uid://ncp0dkbfngf1" path="res://camera.gd" id="1_sasra"]
+[ext_resource type="PackedScene" uid="uid://cc1fomjf362h5" path="res://addons/flowerwall_postprocess/scenes/flowerwall_pp.tscn" id="2_njel3"]
 [ext_resource type="Script" uid="uid://cwhe24e11hw4e" path="res://level_region.gd" id="3_2nij2"]
 [ext_resource type="FontFile" uid="uid://gm7xtq7qb10v" path="res://assets/fonts/JetBrainsMono-2.304/fonts/ttf/JetBrainsMono-Regular.ttf" id="3_coq8p"]
 [ext_resource type="CodeHighlighter" uid="uid://bp3petfrnrf4" path="res://syntax_highlighter.tres" id="4_2nij2"]
 [ext_resource type="Script" uid="uid://bm4jhmns7n0ya" path="res://input.gd" id="6_7cbxl"]
 [ext_resource type="Script" uid="uid://c7llt3mqjv8fe" path="res://code_unedit.gd" id="7_8pr8v"]
+[ext_resource type="Texture2D" uid="uid://camacgt0vrwd" path="res://assets/tilemap/title.png" id="8_buypi"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_njel3"]
+bg_color = Color(0.12, 0.12, 0.12, 1)
 
 [sub_resource type="CodeHighlighter" id="CodeHighlighter_sasra"]
 number_color = Color(0.486275, 0.756863, 0.678431, 1)
@@ -26,16 +31,22 @@ member_variable_color = Color(0.717647, 0.72549, 0.741176, 1)
 
 [node name="Node2D" type="Node2D"]
 
+[node name="flowerwall_pp" parent="." instance=ExtResource("2_njel3")]
+
 [node name="Levels" type="Node2D" parent="."]
 unique_name_in_owner = true
 
 [node name="Camera" type="Camera2D" parent="."]
 unique_name_in_owner = true
-position = Vector2(576, 324)
+limit_left = -1000
+limit_top = -750
+limit_right = 1000
+limit_bottom = 750
 script = ExtResource("1_sasra")
 
 [node name="Controls" type="CanvasLayer" parent="." groups=["Controls"]]
 unique_name_in_owner = true
+layer = 128
 script = ExtResource("1_coq8p")
 
 [node name="VSplitContainer" type="VSplitContainer" parent="Controls"]
@@ -46,7 +57,7 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-split_offset = 300
+split_offset = 370
 dragger_visibility = 1
 drag_area_highlight_in_editor = true
 
@@ -59,6 +70,13 @@ script = ExtResource("3_2nij2")
 [node name="TextureRect" type="TextureRect" parent="Controls/VSplitContainer/LevelRegion"]
 layout_mode = 2
 
+[node name="FindPlayer" type="Button" parent="Controls/VSplitContainer/LevelRegion"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+text = "Find Player"
+
 [node name="ControlsRegion" type="VBoxContainer" parent="Controls/VSplitContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(50, 200)
@@ -68,6 +86,7 @@ size_flags_vertical = 3
 [node name="TabContainer" type="TabContainer" parent="Controls/VSplitContainer/ControlsRegion"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_njel3")
 current_tab = 0
 
 [node name="Input" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer"]
@@ -175,12 +194,17 @@ size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 40
 text = "RESET"
 
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(1, -129)
+texture = ExtResource("8_buypi")
+
 [connection signal="mouse_entered" from="Controls/VSplitContainer/LevelRegion" to="Controls/VSplitContainer/LevelRegion" method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="Controls/VSplitContainer/LevelRegion" to="Controls/VSplitContainer/LevelRegion" method="_on_mouse_exited"]
 [connection signal="mouse_pressed" from="Controls/VSplitContainer/LevelRegion" to="Camera" method="_on_level_region_mouse_pressed"]
 [connection signal="mouse_released" from="Controls/VSplitContainer/LevelRegion" to="Camera" method="_on_level_region_mouse_released"]
 [connection signal="mouse_wheel_down" from="Controls/VSplitContainer/LevelRegion" to="Camera" method="_on_level_region_mouse_wheel_down"]
 [connection signal="mouse_wheel_up" from="Controls/VSplitContainer/LevelRegion" to="Camera" method="_on_level_region_mouse_wheel_up"]
+[connection signal="pressed" from="Controls/VSplitContainer/LevelRegion/FindPlayer" to="Camera" method="_on_find_player_pressed"]
 [connection signal="symbol_hovered" from="Controls/VSplitContainer/ControlsRegion/TabContainer/Input" to="Controls/VSplitContainer/ControlsRegion/TabContainer/Input" method="_on_symbol_hovered"]
 [connection signal="symbol_lookup" from="Controls/VSplitContainer/ControlsRegion/TabContainer/Input" to="Controls/VSplitContainer/ControlsRegion/TabContainer/Input" method="_on_symbol_lookup"]
 [connection signal="text_changed" from="Controls/VSplitContainer/ControlsRegion/TabContainer/Input" to="Controls/VSplitContainer/ControlsRegion/TabContainer/Input" method="_on_text_changed"]

@@ -1,0 +1,56 @@
+[gd_scene load_steps=9 format=3 uid="uid://1uhhhpsv2cu3"]
+
+[ext_resource type="Texture2D" uid="uid://ddklq3hg2ditt" path="res://assets/tilemap/floppydisk.png" id="1_5tw3h"]
+[ext_resource type="Script" uid="uid://cltadsth4v6kw" path="res://floppydisk.gd" id="1_f5pbo"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_f5pbo"]
+size = Vector2(10, 10)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e8cg3"]
+atlas = ExtResource("1_5tw3h")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3otrm"]
+atlas = ExtResource("1_5tw3h")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lx8aq"]
+atlas = ExtResource("1_5tw3h")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2q44i"]
+atlas = ExtResource("1_5tw3h")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_di74s"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e8cg3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3otrm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lx8aq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2q44i")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[node name="FloppyDisk" type="Area2D"]
+script = ExtResource("1_f5pbo")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_f5pbo")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_di74s")
+autoplay = "default"
+frame_progress = 0.493645
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
