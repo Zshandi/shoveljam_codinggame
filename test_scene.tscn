@@ -80,6 +80,7 @@ placeholder_text = "Type your code here"
 syntax_highlighter = ExtResource("4_2nij2")
 highlight_all_occurrences = true
 highlight_current_line = true
+draw_spaces = true
 symbol_lookup_on_click = true
 symbol_tooltip_on_hover = true
 gutters_draw_breakpoints_gutter = true
@@ -88,7 +89,6 @@ gutters_draw_executing_lines = true
 gutters_draw_line_numbers = true
 gutters_draw_fold_gutter = true
 code_completion_enabled = true
-indent_use_spaces = true
 indent_automatic = true
 auto_brace_completion_enabled = true
 auto_brace_completion_highlight_matching = true
@@ -135,16 +135,11 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_fonts/font = ExtResource("3_coq8p")
 theme_override_styles/read_only = SubResource("StyleBoxEmpty_7cbxl")
-text = "class Character:
-	# Move num_tiles in direction dir
-	move(dir:Direction, num_tiles:int)
-	
-	enum Direction {
-		RIGHT,
-		DOWN,
-		LEFT,
-		UP
-	}"
+text = "
+# Move character in a given direction by n tiles
+move(direction, n)
+# Possible values for direction include
+Direction.RIGHT, Direction.LEFT, Direction.UP, Direction.DOWN"
 syntax_highlighter = SubResource("CodeHighlighter_7cbxl")
 gutters_draw_breakpoints_gutter = true
 gutters_draw_bookmarks = true

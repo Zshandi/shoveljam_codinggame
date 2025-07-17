@@ -35,11 +35,3 @@ script = ExtResource("3_ihfcg")
 [node name="Character" parent="." instance=ExtResource("2_hbghi")]
 unique_name_in_owner = true
 position = Vector2(568, 296)
-
-[connection signal="body_entered" from="TileMapLayer/null_enemy" to="TileMapLayer/null_enemy" method="_on_body_entered"]
-[connection signal="body_entered" from="TileMapLayer/@Area2D@93266" to="TileMapLayer/@Area2D@93266" method="_on_body_entered"]
-[connection signal="body_entered" from="TileMapLayer/@Area2D@93267" to="TileMapLayer/@Area2D@93267" method="_on_body_entered"]
-[connection signal="body_entered" from="TileMapLayer/@Area2D@93268" to="TileMapLayer/@Area2D@93268" method="_on_body_entered"]
-[connection signal="body_entered" from="TileMapLayer/@Area2D@93269" to="TileMapLayer/@Area2D@93269" method="_on_body_entered"]
-[connection signal="body_entered" from="TileMapLayer/@Area2D@93270" to="TileMapLayer/@Area2D@93270" method="_on_body_entered"]
-[connection signal="body_entered" from="TileMapLayer/@Area2D@93271" to="TileMapLayer/@Area2D@93271" method="_on_body_entered"]

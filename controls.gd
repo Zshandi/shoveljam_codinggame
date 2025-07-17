@@ -18,7 +18,7 @@ func _ready():
 		x.syntax_highlighter.member_variable_color = Color(0xbce0ffff)
 		x.syntax_highlighter.symbol_color = Color(0xabc9ffff)
 		
-		x.syntax_highlighter.add_color_region("\"","\"",Color(0xffeda1ff),true)
+		x.syntax_highlighter.add_color_region("\"","\"",Color(0xffeda1ff),false)
 		x.syntax_highlighter.add_color_region("#","",Color(0xcdcfd280),true)
 		x.syntax_highlighter.add_color_region("!!","",Color(0xff786bff),true)
 		x.syntax_highlighter.add_color_region("**","",Color(0x42ffc2ff),true)
@@ -53,38 +53,18 @@ func _input(event: InputEvent) -> void:
 	if event.is_action("Go_Keyboard") and event.is_pressed():
 		if %GO.visible:
 			_on_go_pressed()
+		else:
+			_on_reset_pressed()
 
 func _on_go_pressed() -> void:
-	var code = %Input.text
-	var result:ExecutionResult
-	var line_num := 1
 	
 	%Reset.show()
 	%GO.hide()
 	
-	%Output.show()
 	%Output.text = ""
 	
-	for line in code.split('\n'):
-		# Remove comments
-		line = line.split("#", true, 1)[0]
-		# Remove whitespace
-		line = line.strip_edges()
-		if line == "":
-			# ignore empty lines
-			continue
-		
-		%Output.text += "%s: " % [line]
-		result = await execute_line(line)
-		
-		if result.status == ResultStatus.Completed:
-			%Output.text += "** " + result.value_str + "\n"
-		elif result.status == ResultStatus.Failed:
-			%Output.text += "!!ERROR " + result.value_str + "\n"
-			break
-		line_num = line_num + 1
-		if context.dead:
-			break
+	await execute_block(0, 0)
+	
 	if context.dead:
 		%Output.text += "!!ERROR: You crashed!\n"
 	else:
@@ -93,20 +73,158 @@ func _on_go_pressed() -> void:
 
 func _on_reset_pressed():
 	LevelManager.load_current()
-	%Output.text = ""
+	reset_output()
 	%Input.show()
 	
 	%Reset.hide()
 	%GO.show()
 
+func set_output(line_num:int, output:Variant):
+	var line:String = %Input.get_line(line_num)
+	const output_prefix = " # output: "
+	line = line.split(output_prefix, true, 1)[0]
+	if output != null:
+		line = line + output_prefix + str(output)
+		print_debug("output line ", line_num, ": ", output)
+	%Input.set_line(line_num, line)
 
+func output_result(line_num:int, result:ExecutionResult) -> void:
+	if result.status == ResultStatus.Completed:
+		set_output(line_num, result.value_str)
+	elif result.status == ResultStatus.Failed:
+		set_output(line_num, "!!ERROR " + result.value_str)
+		%Input.text = %Input.text + "\n!!ERROR " + result.value_str
+
+func reset_output():
+	%Output.text = ""
+	for line_num in range(%Input.get_line_count()):
+		set_output(line_num, null)
+		if %Input.get_line(line_num).begins_with("!!ERROR"):
+			%Input.remove_line_at(line_num)
+
+func skip_block(line_num:int, until_indent_level:int) -> int:
+	while  line_num < %Input.get_line_count():
+		var line = %Input.get_line(line_num)
+		var current_indent = 0
+		for character in line:
+			if character == "\t": #TODO: Allow spaces
+				current_indent = current_indent + 1
+			else:
+				break
+		
+		if current_indent <= until_indent_level:
+			break
+		
+		line_num = line_num + 1
+		
+		set_output(line_num, null)
+	
+	return line_num
+
+func execute_block(line_num:int, expected_indent_level:int) -> int:
+	
+	var was_if := false
+	var was_if_consumed := false
+	
+	while  line_num < %Input.get_line_count():
+		var line = %Input.get_line(line_num)
+		
+		var stripped_line = line.split("#", true, 1)[0].strip_edges()
+		
+		# Get indentation
+		var current_indent = 0
+		for character in line:
+			if character == "\t": #TODO: Allow spaces
+				current_indent = current_indent + 1
+			else:
+				break
+		
+		# Check indentation
+		if current_indent > expected_indent_level:
+			var result = ExecutionResult.new("Unexpected indentation", ResultStatus.Failed)
+			output_result(line_num, result)
+			return %Input.get_line_count()
+		elif current_indent < expected_indent_level:
+			break
+		
+		if stripped_line == "":
+			# ignore empty lines
+			line_num = line_num + 1
+			was_if = false
+			was_if_consumed = false
+			continue
+		
+		var if_regex := RegEx.new()
+		if_regex.compile("^if (.*):")
+		var if_regex_result := if_regex.search(stripped_line)
+		
+		if if_regex_result == null:
+			var elif_regex := RegEx.new()
+			elif_regex.compile("^elif (.*):")
+			var elif_regex_result = elif_regex.search(stripped_line)
+			if elif_regex_result != null and not was_if:
+				var result = ExecutionResult.new("Unexpected elif (needs an if)", ResultStatus.Failed)
+				output_result(line_num, result)
+				return %Input.get_line_count()
+			else:
+				if_regex_result = elif_regex_result
+		
+		if if_regex_result != null:
+			was_if = true
+			if was_if_consumed:
+				line_num = skip_block(line_num + 1, expected_indent_level)
+				continue
+			
+			var condition = if_regex_result.get_string(1)
+			var condition_result = await execute_expression(condition)
+			
+			output_result(line_num, condition_result)
+			
+			if context.dead or condition_result.status == ResultStatus.Failed:
+				return %Input.get_line_count()
+			
+			if condition_result.value:
+				line_num = await execute_block(line_num + 1, expected_indent_level + 1)
+				was_if_consumed = true
+			else:
+				line_num = skip_block(line_num + 1, expected_indent_level)
+			
+			continue
+		
+		var else_regex := RegEx.new()
+		else_regex.compile("^else:")
+		var else_regex_result := else_regex.search(stripped_line)
+		if else_regex_result != null:
+			if not was_if:
+				var result = ExecutionResult.new("Unexpected else (needs an if)", ResultStatus.Failed)
+				output_result(line_num, result)
+				return %Input.get_line_count()
+			
+			if was_if_consumed:
+				line_num = skip_block(line_num + 1, expected_indent_level)
+			else:
+				line_num = await execute_block(line_num + 1, expected_indent_level + 1)
+			was_if = false
+			continue
+		
+		was_if = false
+		was_if_consumed = false
+		
+		var result := await execute_line(stripped_line)
+		output_result(line_num, result)
+		
+		if context.dead or result.status == ResultStatus.Failed:
+			return %Input.get_line_count()
+		
+		line_num = line_num + 1
+	
+	return line_num
 
 func execute_line(line:String) -> ExecutionResult:
+	var equals_regex = RegEx.new()
+	equals_regex.compile("[^=!><]=[^=!><]")
 	
-	var regex = RegEx.new()
-	regex.compile("[^=!><]=[^=!><]")
-	
-	if regex.search(line) != null:
+	if equals_regex.search(line) != null:
 		var sides = line.split("=", true, 1)
 		if len(sides) >= 2:
 			var left_hand_side = sides[0].strip_edges()
