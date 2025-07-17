@@ -37,3 +37,7 @@ func _on_level_region_mouse_wheel_down() -> void:
 func _on_level_region_mouse_wheel_up() -> void:
 	zoom_level = clamp(zoom_level*1.1,min_zoom,max_zoom)
 	zoom = Vector2(zoom_level,zoom_level)
+
+
+func _on_find_player_pressed():
+	global_position = %Controls.context.position
