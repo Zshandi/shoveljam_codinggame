@@ -19,7 +19,8 @@ func _process(delta):
 		tracking = false
 	
 	if tracking:
-		global_position = initial_camera_position + (initial_mouse_position - Vector2(DisplayServer.mouse_get_position()))*(1.0/zoom_level)
+		var screen_scale = DisplayServer.screen_get_scale()
+		global_position = initial_camera_position + (initial_mouse_position - Vector2(DisplayServer.mouse_get_position()))*(1.0/(zoom_level+screen_scale))
 		
 
 func _on_level_region_mouse_pressed() -> void:

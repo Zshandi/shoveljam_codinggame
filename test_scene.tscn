@@ -59,6 +59,7 @@ drag_area_highlight_in_editor = true
 unique_name_in_owner = true
 clip_children = 1
 layout_mode = 2
+mouse_default_cursor_shape = 6
 script = ExtResource("3_2nij2")
 
 [node name="TextureRect" type="TextureRect" parent="Controls/VSplitContainer/LevelRegion"]
@@ -83,13 +84,15 @@ size_flags_vertical = 3
 theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_njel3")
 current_tab = 0
 
-[node name="Editor" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer"]
+[node name="Editor" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer" groups=["Editor"]]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.803922, 0.807843, 0.823529, 1)
 theme_override_fonts/font = ExtResource("3_coq8p")
 placeholder_text = "Type your code here"
+minimap_draw = true
+caret_blink = true
 syntax_highlighter = ExtResource("4_2nij2")
 highlight_all_occurrences = true
 highlight_current_line = true
@@ -116,6 +119,7 @@ visible = false
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_coq8p")
 placeholder_text = "Variables will appear here"
+minimap_draw = true
 syntax_highlighter = SubResource("CodeHighlighter_coq8p")
 gutters_draw_breakpoints_gutter = true
 gutters_draw_bookmarks = true
@@ -144,6 +148,7 @@ move(Direction.RIGHT)
 #Example: move up 7 tiles
 repeat 7:
 	move(Direction.UP)"
+minimap_draw = true
 syntax_highlighter = SubResource("CodeHighlighter_7cbxl")
 gutters_draw_breakpoints_gutter = true
 gutters_draw_bookmarks = true

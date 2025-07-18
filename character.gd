@@ -63,7 +63,7 @@ func trigger_death():
 	%MoveTimer.emit_signal("timeout")
 	
 func trigger_victory():
-	emit_signal("player_victory")
+	LevelManager.load_next()
 	
 
 

@@ -1,0 +1,51 @@
+[gd_scene load_steps=11 format=4 uid="uid://bxy7jdhx0dk51"]
+
+[ext_resource type="Texture2D" uid="uid://cxi400pxbjdn4" path="res://assets/tilemap/tiles.png" id="1_t6q73"]
+[ext_resource type="Script" uid="uid://di5ul6t8guqmj" path="res://checkerboarder.gd" id="2_hokjj"]
+[ext_resource type="PackedScene" uid="uid://jiu65klsw20t" path="res://null_enemy.tscn" id="3_0fd8o"]
+[ext_resource type="PackedScene" uid="uid://1uhhhpsv2cu3" path="res://floppydisk.tscn" id="4_dmnu2"]
+[ext_resource type="PackedScene" uid="uid://b5bf157vbpye" path="res://character.tscn" id="5_sc6c1"]
+
+[sub_resource type="TileMapPattern" id="TileMapPattern_hn12h"]
+tile_data = PackedInt32Array(0, 131073, 0, 65536, 65537, 0, 1, 65537, 0, 65537, 131073, 0)
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ihfcg"]
+texture = ExtResource("1_t6q73")
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+3:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+
+[sub_resource type="TileSet" id="TileSet_2nij2"]
+physics_layer_0/collision_layer = 1
+physics_layer_1/collision_layer = 0
+sources/1 = SubResource("TileSetAtlasSource_ihfcg")
+pattern_0 = SubResource("TileMapPattern_hn12h")
+
+[sub_resource type="TileSetScenesCollectionSource" id="TileSetScenesCollectionSource_5hph3"]
+scenes/1/scene = ExtResource("3_0fd8o")
+scenes/2/scene = ExtResource("4_dmnu2")
+
+[sub_resource type="TileSet" id="TileSet_j7kpp"]
+physics_layer_0/collision_layer = 1
+physics_layer_1/collision_layer = 0
+sources/2 = SubResource("TileSetScenesCollectionSource_5hph3")
+pattern_0 = SubResource("TileMapPattern_hn12h")
+
+[node name="Level4" type="Node2D"]
+
+[node name="background" type="TileMapLayer" parent="."]
+position = Vector2(-72, -8)
+tile_map_data = PackedByteArray("AAAKAP7/AQABAAAAAAAJAP7/AQABAAAAAAAJAP//AQABAAAAAAAKAP//AQABAAAAAAAKAAAAAQABAAAAAAAJAAAAAQABAAAAAAAIAAAAAQABAAAAAAAIAAEAAQABAAAAAAAJAAEAAQABAAAAAAAKAAEAAQABAAAAAAAKAAIAAQABAAAAAAAJAAIAAQABAAAAAAAIAAIAAQABAAAAAAAHAAIAAQABAAAAAAALAP7/AQADAAAAAAALAP//AQADAAAAAAALAAAAAQADAAAAAAALAAEAAQADAAAAAAALAAIAAQADAAAAAAALAAMAAQADAAAAAAAKAAMAAQADAAAAAAAJAAMAAQADAAAAAAAIAAMAAQADAAAAAAAHAAMAAQADAAAAAAAGAAMAAQADAAAAAAAGAAIAAQADAAAAAAAGAAEAAQADAAAAAAAGAAAAAQADAAAAAAAFAAAAAQADAAAAAAAEAAAAAQADAAAAAAADAAAAAQADAAAAAAACAAAAAQADAAAAAAALAP3/AQADAAAAAAALAPz/AQADAAAAAAAKAPz/AQADAAAAAAAJAPz/AQADAAAAAAAIAPz/AQADAAAAAAAHAPz/AQADAAAAAAAGAPz/AQADAAAAAAAFAPz/AQADAAAAAAAEAPz/AQADAAAAAAADAPz/AQADAAAAAAACAPz/AQADAAAAAAABAPz/AQADAAAAAAAAAPz/AQADAAAAAAD///z/AQADAAAAAAD+//z/AQADAAAAAAD9//z/AQADAAAAAAABAAAAAQADAAAAAAAAAAAAAQADAAAAAAD//wAAAQADAAAAAAD+/wAAAQADAAAAAAD9/wAAAQADAAAAAAD8/wAAAQADAAAAAAD7/wAAAQADAAAAAAD8//z/AQADAAAAAAD7//z/AQADAAAAAAD6//z/AQADAAAAAAD6/wAAAQADAAAAAAD5/wAAAQADAAAAAAD5////AQADAAAAAAD5//z/AQADAAAAAAD5//3/AQADAAAAAAD4//3/AQADAAAAAAD3//3/AQADAAAAAAD2//3/AQADAAAAAAD4////AQADAAAAAAD3////AQADAAAAAAD2////AQADAAAAAAD1////AQADAAAAAAD1//7/AQADAAAAAAD1//3/AQADAAAAAAAHAAEAAQABAAAAAAAHAAAAAQABAAAAAAAHAP//AQABAAAAAAAIAP//AQABAAAAAAAIAP7/AQABAAAAAAAHAP7/AQABAAAAAAAJAP3/AQABAAAAAAAKAP3/AQABAAAAAAAIAP3/AQABAAAAAAAGAP7/AQABAAAAAAAFAP7/AQABAAAAAAAEAP7/AQABAAAAAAAFAP//AQABAAAAAAAGAP//AQABAAAAAAAHAP3/AQABAAAAAAAGAP3/AQABAAAAAAAFAP3/AQABAAAAAAAEAP3/AQABAAAAAAADAP3/AQABAAAAAAACAP3/AQABAAAAAAABAP3/AQABAAAAAAAAAP3/AQABAAAAAAD///3/AQABAAAAAAD+//3/AQABAAAAAAD+//7/AQABAAAAAAD///7/AQABAAAAAAAAAP7/AQABAAAAAAABAP7/AQABAAAAAAACAP7/AQABAAAAAAADAP7/AQABAAAAAAADAP//AQABAAAAAAAEAP//AQABAAAAAAACAP//AQABAAAAAAABAP//AQABAAAAAAAAAP//AQABAAAAAAD/////AQABAAAAAAD+////AQABAAAAAAD9////AQABAAAAAAD8////AQABAAAAAAD7////AQABAAAAAAD6////AQABAAAAAAD6//7/AQABAAAAAAD7//7/AQABAAAAAAD7//3/AQABAAAAAAD8//7/AQABAAAAAAD9//7/AQABAAAAAAD9//3/AQABAAAAAAD8//3/AQABAAAAAAD6//3/AQABAAAAAAD5//7/AQABAAAAAAD4//7/AQABAAAAAAD3//7/AQABAAAAAAD2//7/AQABAAAAAAA=")
+tile_set = SubResource("TileSet_2nij2")
+script = ExtResource("2_hokjj")
+
+[node name="objects" type="TileMapLayer" parent="."]
+position = Vector2(-72, -8)
+tile_map_data = PackedByteArray("AAD6////AgAAAAAAAQD6//3/AgAAAAAAAQD7////AgAAAAAAAQD7//3/AgAAAAAAAQAHAP3/AgAAAAAAAQAIAP3/AgAAAAAAAQAJAP3/AgAAAAAAAQAKAP3/AgAAAAAAAQD2//7/AgAAAAAAAgA=")
+tile_set = SubResource("TileSet_j7kpp")
+script = ExtResource("2_hokjj")
+
+[node name="Character" parent="." instance=ExtResource("5_sc6c1")]
+unique_name_in_owner = true
+position = Vector2(80, 32)
