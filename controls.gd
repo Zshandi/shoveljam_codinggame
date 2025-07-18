@@ -5,6 +5,8 @@ var context:Node = null
 
 var expression = Expression.new()
 
+const execution_min_time_ms := 350
+
 const KEYWORD_COLOUR = Color(0xff7085ff)
 const CONTROL_FLOW_KEYWORD_COLOUR = Color(0xff8cccff)
 const MEMBER_KEYWORD_COLOUR = Color(0xbce0ffff)
@@ -69,9 +71,9 @@ func _on_go_pressed() -> void:
 	await execute_block(0, 0)
 	
 	if context.dead:
-		%Output.text += "!!ERROR: You crashed!\n"
+		%Input.text += "\n!!ERROR: You crashed"
 	else:
-		%Output.text += "Done!\n"
+		%Input.text += "\n# Execution complete!"
 	update_var_display()
 
 func _on_reset_pressed():
@@ -84,11 +86,11 @@ func _on_reset_pressed():
 
 func set_output(line_num:int, output:Variant):
 	var line:String = %Input.get_line(line_num)
-	const output_prefix = " # output: "
+	const output_prefix = " # result: "
 	line = line.split(output_prefix, true, 1)[0]
 	if output != null:
 		line = line + output_prefix + str(output)
-		print_debug("output line ", line_num, ": ", output)
+		print_debug("result for line ", line_num, ": ", output)
 	%Input.set_line(line_num, line)
 
 var has_error := false
@@ -97,16 +99,19 @@ func output_result(line_num:int, result:ExecutionResult) -> void:
 	if result.status == ResultStatus.Completed:
 		set_output(line_num, result.value_str)
 	elif result.status == ResultStatus.Failed:
-		set_output(line_num, "!!ERROR " + result.value_str)
-		%Input.text = %Input.text + "\n!!ERROR " + result.value_str
+		context.trigger_death()
+		set_output(line_num, "!!ERROR: " + result.value_str)
+		%Input.text += "\n!!ERROR: " + result.value_str
 		has_error = true
 
 func reset_output():
-	%Output.text = ""
-	for line_num in range(%Input.get_line_count()):
+	var line_num = 0
+	while line_num < %Input.get_line_count():
 		set_output(line_num, null)
-		if %Input.get_line(line_num).begins_with("!!ERROR"):
+		if %Input.get_line(line_num).begins_with("!!ERROR") or %Input.get_line(line_num) == "# Execution complete!":
 			%Input.remove_line_at(line_num)
+		else:
+			line_num += 1
 	has_error = false
 
 func skip_block(line_num:int, until_indent_level:int) -> int:
@@ -122,13 +127,13 @@ func skip_block(line_num:int, until_indent_level:int) -> int:
 		if current_indent <= until_indent_level:
 			break
 		
-		line_num = line_num + 1
+		line_num += 1
 		
 		set_output(line_num, null)
 	
 	return line_num
 
-func execute_block(line_num:int, expected_indent_level:int) -> int:
+func execute_block(line_num:int, expected_indent_level:int, is_loop:bool = false) -> int:
 	
 	var was_if := false
 	var was_if_consumed := false
@@ -159,7 +164,7 @@ func execute_block(line_num:int, expected_indent_level:int) -> int:
 		# Ignore empty
 		if stripped_line == "":
 			# ignore empty lines
-			line_num = line_num + 1
+			line_num += 1
 			was_if = false
 			was_if_consumed = false
 			continue
@@ -201,7 +206,8 @@ func execute_block(line_num:int, expected_indent_level:int) -> int:
 				return %Input.get_line_count()
 			
 			if condition_result.value == true:
-				line_num = await execute_block(line_num + 1, expected_indent_level + 1)
+				line_num = await execute_block(line_num + 1, expected_indent_level + 1, is_loop)
+				if is_loop and line_num == -1: return -1
 				# If gets consumed once it's true, which means no further ifs will be evaluated
 				was_if_consumed = true
 			else:
@@ -222,7 +228,8 @@ func execute_block(line_num:int, expected_indent_level:int) -> int:
 			if was_if_consumed:
 				line_num = skip_block(line_num + 1, expected_indent_level)
 			else:
-				line_num = await execute_block(line_num + 1, expected_indent_level + 1)
+				line_num = await execute_block(line_num + 1, expected_indent_level + 1, is_loop)
+				if is_loop and line_num == -1: return -1
 			was_if = false
 			continue
 		
@@ -260,7 +267,7 @@ func execute_block(line_num:int, expected_indent_level:int) -> int:
 		if context.dead or result.status == ResultStatus.Failed:
 			return %Input.get_line_count()
 		
-		line_num = line_num + 1
+		line_num += 1
 	
 	return line_num
 
@@ -272,7 +279,7 @@ func execute_line(line:String) -> ExecutionResult:
 		var sides = line.split("=", true, 1)
 		if len(sides) >= 2:
 			var left_hand_side = sides[0].strip_edges()
-			var variable_value = replace_vars_with_dictionaries(sides[1].strip_edges())
+			var variable_value = sides[1].strip_edges()
 			var var_name = left_hand_side
 			
 			if left_hand_side.begins_with("var "): #TODO: allow tab
@@ -301,8 +308,7 @@ func execute_line(line:String) -> ExecutionResult:
 			# This is to account for dictionary assignment also adding the value
 			return ExecutionResult.new("re-define variable", ResultStatus.Failed)
 		context.user_variables[var_name] = null
-	else:
-		line = replace_vars_with_dictionaries(line)
+		return ExecutionResult.new("(variable defined with no value)", ResultStatus.Completed)
 	
 	print("final line: ", line)
 	return await execute_expression(line)
@@ -316,25 +322,31 @@ func replace_vars_with_dictionaries(expr:String) -> String:
 	
 	return expr
 
+func wait_for_ticks(ticks_ms:int) -> void:
+	var ms_remaining := ticks_ms - Time.get_ticks_msec()
+	var seconds_remaining := ms_remaining / 1000.0
+	await get_tree().create_timer(seconds_remaining).timeout
+
 func execute_expression(expr:String) -> ExecutionResult:
+	
+	var end_ticks = Time.get_ticks_msec() + execution_min_time_ms
+	expr = replace_vars_with_dictionaries(expr)
+	
 	var error = expression.parse(expr, ["DisplayServer"])
 	if error != OK:
 		return ExecutionResult.new("Parse error: " + expression.get_error_text(), ResultStatus.Failed)
 	var result = await expression.execute([DisplayServer], context)
 	if not expression.has_execute_failed():
+		await wait_for_ticks(end_ticks)
 		return ExecutionResult.new(result)
 	# something failed
-	context.trigger_death()
+	await wait_for_ticks(end_ticks)
 	return ExecutionResult.new(expression.get_error_text(), ResultStatus.Failed)
 	
 func update_var_display() -> void:
 	%Variables.text = ""
 	for variable in context.user_variables:
 		%Variables.text += "%s: %s\n" % [variable, str(context.user_variables[variable])]
-		
-func on_player_death(line) -> void:
-	# stop executing any code
-	pass
 
 enum ResultStatus {
 	Completed,

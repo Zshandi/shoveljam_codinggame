@@ -38,7 +38,7 @@ func _ready() -> void:
 	pre_window_set_mode_regex.compile("[^\\.a-zA-Z_]?DisplayServer\\.[A-Z]*$")
 	pre_window_set_mode_negative_regex.compile("(window_set_mode|\")")
 	pre_window_mode_regex.compile("[^\\.a-zA-Z_]?DisplayServer\\.window_set_mode\\([a-zA-Z]*$")
-	pre_window_mode_regex.compile("[^\\.a-zA-Z_]?DisplayServer\\.window_set_mode\\(DisplayServer\\.[A-Z]*$")
+	pre_window_mode_regex2.compile("[^\\.a-zA-Z_]?DisplayServer\\.window_set_mode\\(DisplayServer\\.[A-Z]*$")
 
 func _request_code_completion(force: bool) -> void:
 	add_code_completions()

@@ -24,7 +24,6 @@ var goal_distance
 func _ready() -> void:
 	var controls = get_tree().get_first_node_in_group(&"Controls")
 	controls.context = self
-	player_death.connect(controls.on_player_death)
 
 func _physics_process(delta: float) -> void:
 	if moving:
