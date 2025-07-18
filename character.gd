@@ -18,8 +18,8 @@ var user_variables:Dictionary = {}
 var dead = false
 var moving = false
 var distance_travelled = 0.0
-var goal_position
-var goal_distance
+var goal_position:Vector2
+var goal_distance:float
 
 func _ready() -> void:
 	var controls = get_tree().get_first_node_in_group(&"Controls")
@@ -35,19 +35,38 @@ func _physics_process(delta: float) -> void:
 			global_position = goal_position
 		
 
-func move(direction:Direction) -> String:
-	var num_tiles = 1
+func _get_move_vector(direction:Direction) -> Vector2:
+	var dir_vector = Vector2.RIGHT.rotated(direction * PI/2)
+	return dir_vector*TILE_WIDTH
+
+func check_move(direction:Direction) -> MoveResult:
+	var move_vector := _get_move_vector(direction) * 0.999
+	var move_result:KinematicCollision2D = null
+	if test_move(transform, move_vector, move_result):
+		if move_result != null:
+			var what = move_result.get_collider()
+			if what is NullEnemy:
+				return MoveResult.new(MoveResulType.ENEMY, "null")
+			if what is FloppyDisk:
+				return MoveResult.new(MoveResulType.FLOPPY)
+		# Not any known classes, then assume wall
+		return MoveResult.new(MoveResulType.WALL)
+	# No collision then it's empty
+	return MoveResult.new(MoveResulType.EMPTY)
+
+func move(direction:Direction) -> MoveResult:
 	distance_travelled = 0.0
-	goal_distance = abs(float(num_tiles*TILE_WIDTH))
-	var angle = Vector2.RIGHT.rotated(direction * PI/2)*sign(num_tiles)
-	goal_position = global_position+(angle*goal_distance)
-	velocity = angle*movement_speed
+	goal_distance = TILE_WIDTH
+	var move_vector = _get_move_vector(direction)
+	var move_result := check_move(direction)
+	goal_position = global_position + move_vector
+	velocity = move_vector.normalized() * movement_speed
 	%MoveTimer.start(goal_distance/movement_speed)
 	moving = true
 	await %MoveTimer.timeout
 	moving = false
 	velocity = Vector2.ZERO
-	return "Moved %d tile%s %s" % [num_tiles,"" if num_tiles == 1 else "s", Direction.keys()[direction]]
+	return move_result
 	
 func grab() -> String:
 	return "not implemented... yet!"
@@ -64,10 +83,31 @@ func trigger_death():
 	
 func trigger_victory():
 	LevelManager.load_next()
-	
 
 
 func _on_timer_timeout():
 	if not dead:
 		%AnimatedSprite2D.play("blink")
 		%AnimTimer.start(randf_range(5,10))
+
+enum MoveResulType {
+	EMPTY,
+	WALL,
+	ENEMY,
+	FLOPPY,
+	ITEM
+}
+
+class MoveResult:
+	var type:MoveResulType
+	var name:String
+	
+	func _init(p_type:MoveResulType, p_name:String = ""):
+		type = p_type
+		if p_name == "":
+			name = MoveResulType.keys()[type]
+		else:
+			name = p_name
+	
+	func _to_string() -> String:
+		return MoveResulType.keys()[type] + ":" + name

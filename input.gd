@@ -12,6 +12,7 @@ var pre_window_mode_regex := RegEx.new()
 var pre_window_mode_regex2 := RegEx.new()
 
 var pre_move_negative_regex := RegEx.new()
+var pre_check_move_negative_regex := RegEx.new()
 
 var pre_get_tree_negative_regex := RegEx.new()
 var pre_quit_regex := RegEx.new()
@@ -26,13 +27,14 @@ func _ready() -> void:
 	
 	# This only matches strings that contain move or quotes
 	pre_move_negative_regex.compile("(move|\"|\\.$)")
+	pre_check_move_negative_regex.compile("(check_move|\"|\\.$)")
 	# This only matches strings that contain get_tree or quotes
 	pre_get_tree_negative_regex.compile("(get_tree|\"|\\.$)")
 	pre_quit_regex.compile("[^\\.a-zA-Z_]?get_tree\\(\\)\\.[a-z_]*$")
 	
 	
 	# This matches strings that end with move(Something
-	pre_direction_regex.compile("[^\\.a-zA-Z_]?move\\([a-zA-Z]*$")
+	pre_direction_regex.compile("[^\\.a-zA-Z_]?(move|check_move)\\([a-zA-Z]*$")
 	# This matches strings that end with Direction.SOMETHING
 	pre_direction_val_regex.compile("[^\\.a-zA-Z_]?Direction\\.[A-Z]*$")
 	
@@ -87,6 +89,8 @@ func add_code_completions():
 	
 	if not pre_move_negative_regex.search(text_before_complete) and pre_global_func_regex.search(text_before_complete):
 		add_code_completion_option(CodeEdit.KIND_FUNCTION, "move", "move(")
+	if not pre_check_move_negative_regex.search(text_before_complete) and pre_global_func_regex.search(text_before_complete):
+		add_code_completion_option(CodeEdit.KIND_FUNCTION, "check_move", "check_move(")
 
 func _on_text_changed() -> void:
 	_request_code_completion(true)

@@ -143,7 +143,9 @@ func skip_block(line_num:int, until_indent_level:int, clear_output := true) -> i
 		if current_indent <= until_indent_level:
 			break
 		
-		set_output(line_num, null)
+		if clear_output:
+			set_output(line_num, null)
+		
 		line_num += 1
 	
 	return line_num
