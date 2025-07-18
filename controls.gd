@@ -5,7 +5,7 @@ var context:Node = null
 
 var expression = Expression.new()
 
-const execution_min_time_ms := 350
+const execution_min_time_ms := 650
 
 const KEYWORD_COLOUR = Color(0xff7085ff)
 const CONTROL_FLOW_KEYWORD_COLOUR = Color(0xff8cccff)
@@ -62,20 +62,34 @@ func _input(event: InputEvent) -> void:
 		
 		get_viewport().set_input_as_handled()
 
+var is_executing := false
+var kill_execution := false
+signal execution_killed
+
 func _on_go_pressed() -> void:
 	
 	%Reset.show()
 	%GO.hide()
 	
+	is_executing = true
 	await execute_block(0, 0)
+	is_executing = false
+	
+	if kill_execution:
+		execution_killed.emit()
+		return
 	
 	if context.dead:
 		%Editor.text += "\n!!ERROR: You crashed"
 	else:
 		%Editor.text += "\n# Execution complete!"
-	update_var_display()
 
 func _on_reset_pressed():
+	if is_executing:
+		kill_execution = true
+		await execution_killed
+		kill_execution = false
+	is_executing = false
 	LevelManager.load_current()
 	reset_output()
 	%Editor.show()
@@ -84,6 +98,8 @@ func _on_reset_pressed():
 	%GO.show()
 
 func set_output(line_num:int, output:Variant):
+	if line_num >= %Editor.get_line_count():
+		print_debug("line out of index", line_num, ": ", output)
 	var line:String = %Editor.get_line(line_num)
 	const output_prefix = " # result: "
 	line = line.split(output_prefix, true, 1)[0]
@@ -91,6 +107,7 @@ func set_output(line_num:int, output:Variant):
 		line = line + output_prefix + str(output)
 		print_debug("result for line ", line_num, ": ", output)
 	%Editor.set_line(line_num, line)
+	%Editor.set_line_as_center_visible(line_num)
 
 var has_error := false
 
@@ -113,7 +130,7 @@ func reset_output():
 			line_num += 1
 	has_error = false
 
-func skip_block(line_num:int, until_indent_level:int) -> int:
+func skip_block(line_num:int, until_indent_level:int, clear_output := true) -> int:
 	while  line_num < %Editor.get_line_count():
 		var line = %Editor.get_line(line_num)
 		var current_indent = 0
@@ -126,13 +143,13 @@ func skip_block(line_num:int, until_indent_level:int) -> int:
 		if current_indent <= until_indent_level:
 			break
 		
-		line_num += 1
-		
 		set_output(line_num, null)
+		line_num += 1
 	
 	return line_num
 
-func execute_block(line_num:int, expected_indent_level:int, is_loop:bool = false) -> int:
+# Note: line_num is typically int, but can also be LoopControl, and returns int or LoopControl
+func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = false) -> Variant:
 	
 	var was_if := false
 	var was_if_consumed := false
@@ -206,7 +223,7 @@ func execute_block(line_num:int, expected_indent_level:int, is_loop:bool = false
 			
 			if condition_result.value == true:
 				line_num = await execute_block(line_num + 1, expected_indent_level + 1, is_loop)
-				if is_loop and line_num == -1: return -1
+				if line_num is LoopControl: return line_num
 				# If gets consumed once it's true, which means no further ifs will be evaluated
 				was_if_consumed = true
 			else:
@@ -228,7 +245,7 @@ func execute_block(line_num:int, expected_indent_level:int, is_loop:bool = false
 				line_num = skip_block(line_num + 1, expected_indent_level)
 			else:
 				line_num = await execute_block(line_num + 1, expected_indent_level + 1, is_loop)
-				if is_loop and line_num == -1: return -1
+				if line_num is LoopControl: return line_num
 			was_if = false
 			continue
 		
@@ -237,26 +254,105 @@ func execute_block(line_num:int, expected_indent_level:int, is_loop:bool = false
 		
 		## Check for if/elif/else END ##
 		
+		## Check for continue and break BEGIN ##
+		
+		if stripped_line == "continue":
+			if is_loop:
+				return LoopControl.CONTINUE
+			else:
+				var result = ExecutionResult.new("continue can only be used in a loop (repeat or while)", ResultStatus.Failed)
+				output_result(line_num, result)
+				return %Editor.get_line_count()
+		
+		if stripped_line == "break":
+			if is_loop:
+				return LoopControl.BREAK
+			else:
+				var result = ExecutionResult.new("break can only be used in a loop (repeat or while)", ResultStatus.Failed)
+				output_result(line_num, result)
+				return %Editor.get_line_count()
+		
+		## Check for continue and break END ##
+		
 		## Repeat loop BEGIN ##
 		
 		var repeat_regex := RegEx.new()
 		repeat_regex.compile("^repeat[\\s\\(](.*):")
 		var repeat_regex_result := repeat_regex.search(stripped_line)
 		if repeat_regex_result != null:
-			var condition = repeat_regex_result.get_string(1)
-			var condition_result = await execute_expression(condition)
+			var count = repeat_regex_result.get_string(1)
+			var count_result = await execute_expression(count)
 			
-			output_result(line_num, condition_result)
+			if context.dead or count_result.status == ResultStatus.Failed:
+				output_result(line_num, count_result)
+				return %Editor.get_line_count()
+			
+			if not (count_result.value is int):
+				var result = ExecutionResult.new("repeat count must be a number, but instead got: " + count_result.value_str, ResultStatus.Failed)
+				output_result(line_num, result)
+				return %Editor.get_line_count()
 			
 			var line_num_prev = line_num
-			for i in range(condition_result.value):
-				line_num = await execute_block(line_num_prev + 1, expected_indent_level + 1)
+			for i in range(count_result.value):
+				# This skip is just to clear the output
+				skip_block(line_num_prev + 1, expected_indent_level, true)
+				set_output(line_num_prev, "loop " + str(i+1) + " out of " + count_result.value_str)
+				
+				line_num = await execute_block(line_num_prev + 1, expected_indent_level + 1, true)
 				if has_error:
 					return %Editor.get_line_count()
+				elif line_num is LoopControl:
+					if line_num == LoopControl.CONTINUE:
+						continue
+					elif line_num == LoopControl.BREAK:
+						break
+			
+			# Need to get proper line_num
+			line_num = skip_block(line_num_prev + 1, expected_indent_level, false)
 			
 			continue
 		
 		## Repeat loop END ##
+		
+		## While loop BEGIN ##
+		
+		var while_regex := RegEx.new()
+		while_regex.compile("^while[\\s\\(](.*):")
+		var while_regex_result := while_regex.search(stripped_line)
+		if while_regex_result != null:
+			var condition = while_regex_result.get_string(1)
+			
+			var line_num_prev = line_num
+			while true:
+				
+				print_debug("executing: ", condition)
+				var condition_result = await execute_expression(condition)
+				output_result(line_num_prev, condition_result)
+				
+				if context.dead or condition_result.status == ResultStatus.Failed:
+					return %Editor.get_line_count()
+				
+				if not condition_result.value:
+					break
+				
+				# This skip is just to clear the output
+				skip_block(line_num_prev + 1, expected_indent_level, true)
+				
+				line_num = await execute_block(line_num_prev + 1, expected_indent_level + 1, true)
+				if has_error:
+					return %Editor.get_line_count()
+				elif line_num is LoopControl:
+					if line_num == LoopControl.CONTINUE:
+						continue
+					elif line_num == LoopControl.BREAK:
+						break
+			
+			# Need to get proper line_num
+			line_num = skip_block(line_num_prev + 1, expected_indent_level, false)
+			
+			continue
+		
+		## While loop END ##
 		
 		## Finally, just evaluate the single line
 		
@@ -290,11 +386,12 @@ func execute_line(line:String) -> ExecutionResult:
 			var var_regex_result = variable_declair_regex.search(left_hand_side)
 			if var_regex_result != null:
 				var_name = var_regex_result.get_string(1)
+				%Editor.syntax_highlighter.add_member_keyword_color(var_name,MEMBER_KEYWORD_COLOUR)
 				if var_name in context.user_variables:
 					# This is to account for dictionary assignment also adding the value
 					var correct_expression = "(use '" + var_name + " = " + variable_value + "' instead)"
 					return ExecutionResult.new("re-defined variable: only need var once " + correct_expression, ResultStatus.Failed)
-			elif variable_declair_regex.search(left_hand_side) != null:
+			elif variable_name_regex.search(left_hand_side) != null:
 				if !(var_name in context.user_variables):
 					# This is to account for dictionary assignment also adding the value
 					var correct_expression = "(use 'var " + line + "' instead)"
@@ -306,7 +403,7 @@ func execute_line(line:String) -> ExecutionResult:
 			
 			if evaluated_value.status == ResultStatus.Completed:
 				context.user_variables[var_name] = evaluated_value.value
-				%Editor.syntax_highlighter.add_member_keyword_color(var_name,MEMBER_KEYWORD_COLOUR)
+				update_var_display()
 				return evaluated_value
 			else:
 				return evaluated_value
@@ -346,11 +443,17 @@ func execute_expression(expr:String) -> ExecutionResult:
 	if error != OK:
 		return ExecutionResult.new("Parse error: " + expression.get_error_text(), ResultStatus.Failed)
 	var result = await expression.execute([DisplayServer], context)
+	if kill_execution:
+		return ExecutionResult.new("Execution stopped", ResultStatus.Failed)
 	if not expression.has_execute_failed():
 		await wait_for_ticks(end_ticks)
+		if kill_execution:
+			return ExecutionResult.new("Execution stopped", ResultStatus.Failed)
 		return ExecutionResult.new(result)
 	# something failed
 	await wait_for_ticks(end_ticks)
+	if kill_execution:
+		return ExecutionResult.new("Execution stopped", ResultStatus.Failed)
 	return ExecutionResult.new(expression.get_error_text(), ResultStatus.Failed)
 	
 func update_var_display() -> void:
@@ -363,6 +466,10 @@ enum ResultStatus {
 	Failed,
 	Skipped
 }
+
+class LoopControl:
+	static var CONTINUE := LoopControl.new()
+	static var BREAK := LoopControl.new()
 
 class ExecutionResult:
 	extends RefCounted
