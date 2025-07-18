@@ -174,13 +174,13 @@ func execute_block(line_num:int, expected_indent_level:int, is_loop:bool = false
 		
 		# Check for if
 		var if_regex := RegEx.new()
-		if_regex.compile("^if (.*):")
+		if_regex.compile("^if[\\s\\(](.*):")
 		var if_regex_result := if_regex.search(stripped_line)
 		
 		if if_regex_result == null:
 			# No if found, so check for elif
 			var elif_regex := RegEx.new()
-			elif_regex.compile("^elif (.*):")
+			elif_regex.compile("^elif[\\s\\(](.*):")
 			var elif_regex_result = elif_regex.search(stripped_line)
 			if elif_regex_result != null and not was_if:
 				var result = ExecutionResult.new("Unexpected elif (needs an if)", ResultStatus.Failed)
@@ -240,7 +240,7 @@ func execute_block(line_num:int, expected_indent_level:int, is_loop:bool = false
 		## Repeat loop BEGIN ##
 		
 		var repeat_regex := RegEx.new()
-		repeat_regex.compile("^repeat (.*):")
+		repeat_regex.compile("^repeat[\\s\\(](.*):")
 		var repeat_regex_result := repeat_regex.search(stripped_line)
 		if repeat_regex_result != null:
 			var condition = repeat_regex_result.get_string(1)
@@ -271,6 +271,12 @@ func execute_block(line_num:int, expected_indent_level:int, is_loop:bool = false
 	return line_num
 
 func execute_line(line:String) -> ExecutionResult:
+	
+	var variable_declair_regex = RegEx.new()
+	variable_declair_regex.compile("^var\\s([a-zA-Z_][a-zA-Z_0-9]*)$")
+	var variable_name_regex = RegEx.new()
+	variable_name_regex.compile("^[a-zA-Z_][a-zA-Z_0-9]*$")
+	
 	var equals_regex = RegEx.new()
 	equals_regex.compile("[^=!><]=[^=!><]")
 	
@@ -281,15 +287,20 @@ func execute_line(line:String) -> ExecutionResult:
 			var variable_value = sides[1].strip_edges()
 			var var_name = left_hand_side
 			
-			if left_hand_side.begins_with("var "): #TODO: allow tab
-				var_name = left_hand_side.substr(4).strip_edges()
+			var var_regex_result = variable_declair_regex.search(left_hand_side)
+			if var_regex_result != null:
+				var_name = var_regex_result.get_string(1)
 				if var_name in context.user_variables:
 					# This is to account for dictionary assignment also adding the value
-					return ExecutionResult.new("re-define variable", ResultStatus.Failed)
-			else:
+					var correct_expression = "(use '" + var_name + " = " + variable_value + "' instead)"
+					return ExecutionResult.new("re-defined variable: only need var once " + correct_expression, ResultStatus.Failed)
+			elif variable_declair_regex.search(left_hand_side) != null:
 				if !(var_name in context.user_variables):
 					# This is to account for dictionary assignment also adding the value
-					return ExecutionResult.new("assignment to undefined variable", ResultStatus.Failed)
+					var correct_expression = "(use 'var " + line + "' instead)"
+					return ExecutionResult.new("assignment to undefined variable " + correct_expression, ResultStatus.Failed)
+			else:
+				return ExecutionResult.new("Invalid variable name. Variable names can only contain letters, numbers, underscores, and cannot start with a number", ResultStatus.Failed)
 			
 			var evaluated_value = await execute_expression(variable_value)
 			

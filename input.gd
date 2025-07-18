@@ -16,6 +16,8 @@ var pre_move_negative_regex := RegEx.new()
 var pre_get_tree_negative_regex := RegEx.new()
 var pre_quit_regex := RegEx.new()
 
+var pre_global_func_regex := RegEx.new()
+
 func _ready() -> void:
 	code_completion_prefixes = [".", "(", "= "]
 	
@@ -39,6 +41,8 @@ func _ready() -> void:
 	pre_window_set_mode_negative_regex.compile("(window_set_mode|\")")
 	pre_window_mode_regex.compile("[^\\.a-zA-Z_]?DisplayServer\\.window_set_mode\\([a-zA-Z]*$")
 	pre_window_mode_regex2.compile("[^\\.a-zA-Z_]?DisplayServer\\.window_set_mode\\(DisplayServer\\.[A-Z]*$")
+	
+	pre_global_func_regex.compile("^[a-zA-Z_]*$")
 
 func _request_code_completion(force: bool) -> void:
 	add_code_completions()
@@ -51,7 +55,7 @@ func add_code_completions():
 	var text_before_complete = ""
 	if regex_match != null: text_before_complete = regex_match.get_string(1)
 	
-	if not pre_display_server_negative_regex.search(text_before_complete):
+	if not pre_display_server_negative_regex.search(text_before_complete) and pre_global_func_regex.search(text_before_complete):
 		add_code_completion_option(CodeEdit.KIND_CLASS, "DisplayServer", "DisplayServer.")
 	elif pre_window_set_mode_regex.search(text_before_complete) and not pre_window_set_mode_negative_regex.search(text_before_complete):
 		add_code_completion_option(CodeEdit.KIND_FUNCTION, "window_set_mode", "window_set_mode(")
@@ -75,13 +79,13 @@ func add_code_completions():
 		add_code_completion_option(CodeEdit.KIND_ENUM, "Direction", "Direction.")
 		return
 	
-	if not pre_get_tree_negative_regex.search(text_before_complete):
+	if not pre_get_tree_negative_regex.search(text_before_complete) and pre_global_func_regex.search(text_before_complete):
 		add_code_completion_option(CodeEdit.KIND_FUNCTION, "get_tree", "get_tree()")
 	elif pre_quit_regex.search(text_before_complete):
 		add_code_completion_option(CodeEdit.KIND_FUNCTION, "quit", "quit()")
 		return
 	
-	if not pre_move_negative_regex.search(text_before_complete):
+	if not pre_move_negative_regex.search(text_before_complete) and pre_global_func_regex.search(text_before_complete):
 		add_code_completion_option(CodeEdit.KIND_FUNCTION, "move", "move(")
 
 func _on_text_changed() -> void:
