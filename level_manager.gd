@@ -2,7 +2,7 @@ extends Node2D
 class_name Levels
 
 var level_list := [
-	preload("res://level_1.tscn")
+	preload("res://levels/level_1.tscn")
 ]
 
 func _ready() -> void:

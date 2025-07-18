@@ -12,9 +12,9 @@ const CONTROL_FLOW_KEYWORD_COLOUR = Color(0xff8cccff)
 const MEMBER_KEYWORD_COLOUR = Color(0xbce0ffff)
 
 func _ready():
-	%Input.grab_focus()
+	%Editor.grab_focus()
 	#sdsds
-	for x in [%Input,%Output,%Variables, %Docs]:
+	for x in [%Editor,%Variables, %Docs]:
 		x.syntax_highlighter.function_color = Color(0x57b3ffff)
 		x.syntax_highlighter.number_color = Color(0xa1ffe0ff)
 		x.syntax_highlighter.member_variable_color = Color(0xbce0ffff)
@@ -67,32 +67,30 @@ func _on_go_pressed() -> void:
 	%Reset.show()
 	%GO.hide()
 	
-	%Output.text = ""
-	
 	await execute_block(0, 0)
 	
 	if context.dead:
-		%Input.text += "\n!!ERROR: You crashed"
+		%Editor.text += "\n!!ERROR: You crashed"
 	else:
-		%Input.text += "\n# Execution complete!"
+		%Editor.text += "\n# Execution complete!"
 	update_var_display()
 
 func _on_reset_pressed():
 	LevelManager.load_current()
 	reset_output()
-	%Input.show()
+	%Editor.show()
 	
 	%Reset.hide()
 	%GO.show()
 
 func set_output(line_num:int, output:Variant):
-	var line:String = %Input.get_line(line_num)
+	var line:String = %Editor.get_line(line_num)
 	const output_prefix = " # result: "
 	line = line.split(output_prefix, true, 1)[0]
 	if output != null:
 		line = line + output_prefix + str(output)
 		print_debug("result for line ", line_num, ": ", output)
-	%Input.set_line(line_num, line)
+	%Editor.set_line(line_num, line)
 
 var has_error := false
 
@@ -102,22 +100,22 @@ func output_result(line_num:int, result:ExecutionResult) -> void:
 	elif result.status == ResultStatus.Failed:
 		context.trigger_death()
 		set_output(line_num, "!!ERROR: " + result.value_str)
-		%Input.text += "\n!!ERROR: " + result.value_str
+		%Editor.text += "\n!!ERROR: " + result.value_str
 		has_error = true
 
 func reset_output():
 	var line_num = 0
-	while line_num < %Input.get_line_count():
+	while line_num < %Editor.get_line_count():
 		set_output(line_num, null)
-		if %Input.get_line(line_num).begins_with("!!ERROR") or %Input.get_line(line_num) == "# Execution complete!":
-			%Input.remove_line_at(line_num)
+		if %Editor.get_line(line_num).begins_with("!!ERROR") or %Editor.get_line(line_num) == "# Execution complete!":
+			%Editor.remove_line_at(line_num)
 		else:
 			line_num += 1
 	has_error = false
 
 func skip_block(line_num:int, until_indent_level:int) -> int:
-	while  line_num < %Input.get_line_count():
-		var line = %Input.get_line(line_num)
+	while  line_num < %Editor.get_line_count():
+		var line = %Editor.get_line(line_num)
 		var current_indent = 0
 		for character in line:
 			if character == "\t": #TODO: Allow spaces
@@ -139,8 +137,8 @@ func execute_block(line_num:int, expected_indent_level:int, is_loop:bool = false
 	var was_if := false
 	var was_if_consumed := false
 	
-	while  line_num < %Input.get_line_count():
-		var line = %Input.get_line(line_num)
+	while  line_num < %Editor.get_line_count():
+		var line = %Editor.get_line(line_num)
 		
 		var stripped_line = line.split("#", true, 1)[0].strip_edges()
 		
@@ -158,7 +156,7 @@ func execute_block(line_num:int, expected_indent_level:int, is_loop:bool = false
 		if current_indent > expected_indent_level:
 			var result = ExecutionResult.new("Unexpected indentation", ResultStatus.Failed)
 			output_result(line_num, result)
-			return %Input.get_line_count()
+			return %Editor.get_line_count()
 		elif current_indent < expected_indent_level:
 			break
 		
@@ -187,7 +185,7 @@ func execute_block(line_num:int, expected_indent_level:int, is_loop:bool = false
 			if elif_regex_result != null and not was_if:
 				var result = ExecutionResult.new("Unexpected elif (needs an if)", ResultStatus.Failed)
 				output_result(line_num, result)
-				return %Input.get_line_count()
+				return %Editor.get_line_count()
 			else:
 				if_regex_result = elif_regex_result
 		
@@ -204,7 +202,7 @@ func execute_block(line_num:int, expected_indent_level:int, is_loop:bool = false
 			output_result(line_num, condition_result)
 			
 			if context.dead or condition_result.status == ResultStatus.Failed:
-				return %Input.get_line_count()
+				return %Editor.get_line_count()
 			
 			if condition_result.value == true:
 				line_num = await execute_block(line_num + 1, expected_indent_level + 1, is_loop)
@@ -224,7 +222,7 @@ func execute_block(line_num:int, expected_indent_level:int, is_loop:bool = false
 			if not was_if:
 				var result = ExecutionResult.new("Unexpected else (needs an if)", ResultStatus.Failed)
 				output_result(line_num, result)
-				return %Input.get_line_count()
+				return %Editor.get_line_count()
 			
 			if was_if_consumed:
 				line_num = skip_block(line_num + 1, expected_indent_level)
@@ -254,7 +252,7 @@ func execute_block(line_num:int, expected_indent_level:int, is_loop:bool = false
 			for i in range(condition_result.value):
 				line_num = await execute_block(line_num_prev + 1, expected_indent_level + 1)
 				if has_error:
-					return %Input.get_line_count()
+					return %Editor.get_line_count()
 			
 			continue
 		
@@ -266,7 +264,7 @@ func execute_block(line_num:int, expected_indent_level:int, is_loop:bool = false
 		output_result(line_num, result)
 		
 		if context.dead or result.status == ResultStatus.Failed:
-			return %Input.get_line_count()
+			return %Editor.get_line_count()
 		
 		line_num += 1
 	
@@ -297,7 +295,7 @@ func execute_line(line:String) -> ExecutionResult:
 			
 			if evaluated_value.status == ResultStatus.Completed:
 				context.user_variables[var_name] = evaluated_value.value
-				%Input.syntax_highlighter.add_member_keyword_color(var_name,MEMBER_KEYWORD_COLOUR)
+				%Editor.syntax_highlighter.add_member_keyword_color(var_name,MEMBER_KEYWORD_COLOUR)
 				return evaluated_value
 			else:
 				return evaluated_value

@@ -1,5 +1,6 @@
-[gd_scene load_steps=11 format=4 uid="uid://busmn2ws8ywf5"]
+[gd_scene load_steps=12 format=4 uid="uid://busmn2ws8ywf5"]
 
+[ext_resource type="Script" uid="uid://bcjspm6pkjtp4" path="res://levels/level_1.gd" id="1_btoec"]
 [ext_resource type="Texture2D" uid="uid://cxi400pxbjdn4" path="res://assets/tilemap/tiles.png" id="1_hbghi"]
 [ext_resource type="PackedScene" uid="uid://b5bf157vbpye" path="res://character.tscn" id="2_hbghi"]
 [ext_resource type="PackedScene" uid="uid://jiu65klsw20t" path="res://null_enemy.tscn" id="2_hn12h"]
@@ -33,6 +34,7 @@ sources/2 = SubResource("TileSetScenesCollectionSource_5hph3")
 pattern_0 = SubResource("TileMapPattern_hn12h")
 
 [node name="Level1" type="Node2D"]
+script = ExtResource("1_btoec")
 
 [node name="background" type="TileMapLayer" parent="."]
 tile_map_data = PackedByteArray("AAD5//3/AQADAAAAAAD5//7/AQADAAAAAAD5////AQADAAAAAAD5/wAAAQADAAAAAAD6//z/AQADAAAAAAD6//3/AQADAAAAAAD6//7/AQABAAAAAAD6////AQABAAAAAAD6/wAAAQADAAAAAAD6/wEAAQADAAAAAAD7//z/AQADAAAAAAD7//3/AQABAAAAAAD7//7/AQABAAAAAAD7////AQABAAAAAAD7/wAAAQABAAAAAAD7/wEAAQADAAAAAAD7/wIAAQADAAAAAAD8//z/AQADAAAAAAD8//3/AQABAAAAAAD8//7/AQABAAAAAAD8////AQABAAAAAAD8/wAAAQABAAAAAAD8/wEAAQABAAAAAAD8/wIAAQADAAAAAAD8/wMAAQADAAAAAAD9//z/AQADAAAAAAD9//3/AQABAAAAAAD9//7/AQABAAAAAAD9////AQABAAAAAAD9/wAAAQABAAAAAAD9/wEAAQABAAAAAAD9/wIAAQABAAAAAAD9/wMAAQADAAAAAAD+//z/AQADAAAAAAD+//3/AQABAAAAAAD+//7/AQABAAAAAAD+////AQABAAAAAAD+/wAAAQABAAAAAAD+/wEAAQABAAAAAAD+/wIAAQABAAAAAAD+/wMAAQADAAAAAAD///z/AQADAAAAAAD///3/AQABAAAAAAD///7/AQABAAAAAAD/////AQABAAAAAAD//wAAAQABAAAAAAD//wEAAQABAAAAAAD//wIAAQABAAAAAAD//wMAAQADAAAAAAAAAPz/AQADAAAAAAAAAP3/AQABAAAAAAAAAP7/AQABAAAAAAAAAP//AQABAAAAAAAAAAAAAQABAAAAAAAAAAEAAQABAAAAAAAAAAIAAQABAAAAAAAAAAMAAQADAAAAAAABAPz/AQADAAAAAAABAP3/AQABAAAAAAABAP7/AQABAAAAAAABAP//AQABAAAAAAABAAAAAQABAAAAAAABAAIAAQABAAAAAAABAAMAAQADAAAAAAACAPz/AQADAAAAAAACAP3/AQABAAAAAAACAP7/AQABAAAAAAACAP//AQABAAAAAAACAAAAAQABAAAAAAACAAEAAQABAAAAAAACAAIAAQABAAAAAAACAAMAAQADAAAAAAADAPz/AQADAAAAAAADAP3/AQABAAAAAAADAP7/AQABAAAAAAADAP//AQABAAAAAAADAAAAAQABAAAAAAADAAEAAQABAAAAAAADAAIAAQABAAAAAAADAAMAAQADAAAAAAAEAPz/AQADAAAAAAAEAP3/AQABAAAAAAAEAP7/AQABAAAAAAAEAP//AQABAAAAAAAEAAAAAQABAAAAAAAEAAEAAQABAAAAAAAEAAIAAQACAAAAAAAEAAMAAQADAAAAAAAFAPz/AQADAAAAAAAFAP3/AQABAAAAAAAFAP7/AQABAAAAAAAFAP//AQABAAAAAAAFAAAAAQABAAAAAAAFAAEAAQADAAAAAAAFAAIAAQADAAAAAAAFAAMAAQADAAAAAAAGAPz/AQADAAAAAAAGAP3/AQADAAAAAAAGAP7/AQADAAAAAAAGAP//AQADAAAAAAAGAAAAAQADAAAAAAAGAAEAAQADAAAAAAABAAEAAQABAAAAAAA=")
@@ -47,26 +49,3 @@ script = ExtResource("3_ihfcg")
 [node name="Character" parent="." instance=ExtResource("2_hbghi")]
 unique_name_in_owner = true
 position = Vector2(72, 40)
-
-[connection signal="body_entered" from="objects/null_enemy" to="objects/null_enemy" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22339" to="objects/@Area2D@22339" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22340" to="objects/@Area2D@22340" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22341" to="objects/@Area2D@22341" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22342" to="objects/@Area2D@22342" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22343" to="objects/@Area2D@22343" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22344" to="objects/@Area2D@22344" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22345" to="objects/@Area2D@22345" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22346" to="objects/@Area2D@22346" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22347" to="objects/@Area2D@22347" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22348" to="objects/@Area2D@22348" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22349" to="objects/@Area2D@22349" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22350" to="objects/@Area2D@22350" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22351" to="objects/@Area2D@22351" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/FloppyDisk" to="objects/FloppyDisk" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22352" to="objects/@Area2D@22352" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22353" to="objects/@Area2D@22353" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22354" to="objects/@Area2D@22354" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22355" to="objects/@Area2D@22355" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22356" to="objects/@Area2D@22356" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22357" to="objects/@Area2D@22357" method="_on_body_entered"]
-[connection signal="body_entered" from="objects/@Area2D@22358" to="objects/@Area2D@22358" method="_on_body_entered"]

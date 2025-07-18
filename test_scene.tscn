@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://bfsi8tw4oi3ni"]
+[gd_scene load_steps=14 format=3 uid="uid://bfsi8tw4oi3ni"]
 
 [ext_resource type="Script" uid="uid://cn807bber78gd" path="res://controls.gd" id="1_coq8p"]
 [ext_resource type="Script" uid="uid://ncp0dkbfngf1" path="res://camera.gd" id="1_sasra"]
@@ -12,12 +12,6 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_njel3"]
 bg_color = Color(0.12, 0.12, 0.12, 1)
-
-[sub_resource type="CodeHighlighter" id="CodeHighlighter_sasra"]
-number_color = Color(0.486275, 0.756863, 0.678431, 1)
-symbol_color = Color(0.654902, 0.772549, 0.976471, 1)
-function_color = Color(0.4, 0.898039, 1, 1)
-member_variable_color = Color(0.717647, 0.72549, 0.741176, 1)
 
 [sub_resource type="CodeHighlighter" id="CodeHighlighter_coq8p"]
 
@@ -89,7 +83,7 @@ size_flags_vertical = 3
 theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_njel3")
 current_tab = 0
 
-[node name="Input" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer"]
+[node name="Editor" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
@@ -116,24 +110,6 @@ auto_brace_completion_highlight_matching = true
 script = ExtResource("6_7cbxl")
 metadata/_tab_index = 0
 
-[node name="Output" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_fonts/font = ExtResource("3_coq8p")
-placeholder_text = "Output will appear here"
-syntax_highlighter = SubResource("CodeHighlighter_sasra")
-gutters_draw_breakpoints_gutter = true
-gutters_draw_executing_lines = true
-gutters_draw_line_numbers = true
-gutters_draw_fold_gutter = true
-indent_use_spaces = true
-auto_brace_completion_enabled = true
-auto_brace_completion_highlight_matching = true
-script = ExtResource("7_8pr8v")
-metadata/_tab_index = 1
-
 [node name="Variables" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer"]
 unique_name_in_owner = true
 visible = false
@@ -147,7 +123,7 @@ gutters_draw_executing_lines = true
 gutters_draw_line_numbers = true
 gutters_draw_fold_gutter = true
 script = ExtResource("7_8pr8v")
-metadata/_tab_index = 2
+metadata/_tab_index = 1
 
 [node name="Docs" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer"]
 unique_name_in_owner = true
@@ -178,7 +154,7 @@ indent_use_spaces = true
 auto_brace_completion_enabled = true
 auto_brace_completion_highlight_matching = true
 script = ExtResource("7_8pr8v")
-metadata/_tab_index = 3
+metadata/_tab_index = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Controls/VSplitContainer/ControlsRegion"]
 layout_mode = 2
@@ -209,8 +185,8 @@ texture = ExtResource("8_buypi")
 [connection signal="mouse_wheel_down" from="Controls/VSplitContainer/LevelRegion" to="Camera" method="_on_level_region_mouse_wheel_down"]
 [connection signal="mouse_wheel_up" from="Controls/VSplitContainer/LevelRegion" to="Camera" method="_on_level_region_mouse_wheel_up"]
 [connection signal="pressed" from="Controls/VSplitContainer/LevelRegion/FindPlayer" to="Camera" method="_on_find_player_pressed"]
-[connection signal="symbol_hovered" from="Controls/VSplitContainer/ControlsRegion/TabContainer/Input" to="Controls/VSplitContainer/ControlsRegion/TabContainer/Input" method="_on_symbol_hovered"]
-[connection signal="symbol_lookup" from="Controls/VSplitContainer/ControlsRegion/TabContainer/Input" to="Controls/VSplitContainer/ControlsRegion/TabContainer/Input" method="_on_symbol_lookup"]
-[connection signal="text_changed" from="Controls/VSplitContainer/ControlsRegion/TabContainer/Input" to="Controls/VSplitContainer/ControlsRegion/TabContainer/Input" method="_on_text_changed"]
+[connection signal="symbol_hovered" from="Controls/VSplitContainer/ControlsRegion/TabContainer/Editor" to="Controls/VSplitContainer/ControlsRegion/TabContainer/Editor" method="_on_symbol_hovered"]
+[connection signal="symbol_lookup" from="Controls/VSplitContainer/ControlsRegion/TabContainer/Editor" to="Controls/VSplitContainer/ControlsRegion/TabContainer/Editor" method="_on_symbol_lookup"]
+[connection signal="text_changed" from="Controls/VSplitContainer/ControlsRegion/TabContainer/Editor" to="Controls/VSplitContainer/ControlsRegion/TabContainer/Editor" method="_on_text_changed"]
 [connection signal="pressed" from="Controls/VSplitContainer/ControlsRegion/HBoxContainer/GO" to="Controls" method="_on_go_pressed"]
 [connection signal="pressed" from="Controls/VSplitContainer/ControlsRegion/HBoxContainer/Reset" to="Controls" method="_on_reset_pressed"]
