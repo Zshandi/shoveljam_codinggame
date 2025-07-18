@@ -40,6 +40,7 @@ func _ready():
 		x.syntax_highlighter.add_keyword_color("null",KEYWORD_COLOUR)
 		x.syntax_highlighter.add_keyword_color("self",KEYWORD_COLOUR)
 		x.syntax_highlighter.add_keyword_color("ERROR",KEYWORD_COLOUR)
+		x.syntax_highlighter.add_keyword_color("is",KEYWORD_COLOUR)
 		
 		x.syntax_highlighter.add_keyword_color("for",CONTROL_FLOW_KEYWORD_COLOUR)
 		x.syntax_highlighter.add_keyword_color("if",CONTROL_FLOW_KEYWORD_COLOUR)
