@@ -379,6 +379,14 @@ func execute_line(line:String) -> ExecutionResult:
 	equals_regex.compile("[^=!><]=[^=!><]")
 	
 	if equals_regex.search(line) != null:
+		if not line.begins_with("var"):
+			const operators = ["+", "-", "*", "/", "%"]
+			for op in operators:
+				var op_eq = op + "="
+				if line.contains(op_eq):
+					var sides = line.split(op_eq, true, 1)
+					var var_name = sides[0].strip_edges()
+					line = line.replace(op_eq, "= " + var_name + " " + op)
 		var sides = line.split("=", true, 1)
 		if len(sides) >= 2:
 			var left_hand_side = sides[0].strip_edges()

@@ -39,22 +39,21 @@ func _get_move_vector(direction:Direction) -> Vector2:
 	var dir_vector = Vector2.RIGHT.rotated(direction * PI/2)
 	return dir_vector*TILE_WIDTH
 
-func check_move(direction:Direction) -> MoveResult:
+func check_move(direction:Direction) -> TileInfo:
 	var move_vector := _get_move_vector(direction) * 0.999
 	var move_result:KinematicCollision2D = null
 	if test_move(transform, move_vector, move_result):
 		if move_result != null:
 			var what = move_result.get_collider()
-			if what is NullEnemy:
-				return MoveResult.new(MoveResulType.ENEMY, "null")
-			if what is FloppyDisk:
-				return MoveResult.new(MoveResulType.FLOPPY)
-		# Not any known classes, then assume wall
-		return MoveResult.new(MoveResulType.WALL)
+			if what.has_method("get_tile_info"):
+				var tile_info =  what.get_tile_info()
+				if tile_info is TileInfo: return tile_info
+		# Does not have TileInfo, then must be a wall
+		return TileInfo.new(TileInfo.TileType.WALL)
 	# No collision then it's empty
-	return MoveResult.new(MoveResulType.EMPTY)
+	return TileInfo.new(TileInfo.TileType.EMPTY)
 
-func move(direction:Direction) -> MoveResult:
+func move(direction:Direction) -> TileInfo:
 	distance_travelled = 0.0
 	goal_distance = TILE_WIDTH
 	var move_vector = _get_move_vector(direction)
@@ -89,25 +88,3 @@ func _on_timer_timeout():
 	if not dead:
 		%AnimatedSprite2D.play("blink")
 		%AnimTimer.start(randf_range(5,10))
-
-enum MoveResulType {
-	EMPTY,
-	WALL,
-	ENEMY,
-	FLOPPY,
-	ITEM
-}
-
-class MoveResult:
-	var type:MoveResulType
-	var name:String
-	
-	func _init(p_type:MoveResulType, p_name:String = ""):
-		type = p_type
-		if p_name == "":
-			name = MoveResulType.keys()[type]
-		else:
-			name = p_name
-	
-	func _to_string() -> String:
-		return MoveResulType.keys()[type] + ":" + name
