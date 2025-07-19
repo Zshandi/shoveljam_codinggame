@@ -49,3 +49,5 @@ script = ExtResource("3_ihfcg")
 [node name="Character" parent="." instance=ExtResource("2_hbghi")]
 unique_name_in_owner = true
 position = Vector2(32, 0)
+
+[connection signal="body_entered" from="objects/FloppyDisk" to="objects/FloppyDisk" method="_on_body_entered"]

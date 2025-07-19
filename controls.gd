@@ -17,7 +17,7 @@ func _ready():
 	add_syntax_highlighting()
 
 func add_syntax_highlighting():
-	for x in [%Editor,%Variables, %Docs]:
+	for x in [%Editor,%Variables, %Basics, %Movement, %Reacting]:
 		x.syntax_highlighter.function_color = Color(0x57b3ffff)
 		x.syntax_highlighter.number_color = Color(0xa1ffe0ff)
 		x.syntax_highlighter.member_variable_color = Color(0xbce0ffff)

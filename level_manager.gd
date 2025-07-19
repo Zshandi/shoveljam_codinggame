@@ -4,7 +4,7 @@ class_name Levels
 var level_list := [
 	{
 		"scene" : preload("res://levels/level_1.tscn"),
-		"text" : "# Collect the floppy disk by calling move() the correct number of times\n"
+		"text" : "# Collect the floppy disk by calling move() the correct number of times\nSee the Docs for help"
 	},
 	{
 		"scene" : preload("res://levels/level_2.tscn"),

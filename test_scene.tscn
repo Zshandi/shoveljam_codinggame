@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://bfsi8tw4oi3ni"]
+[gd_scene load_steps=17 format=3 uid="uid://bfsi8tw4oi3ni"]
 
 [ext_resource type="Script" uid="uid://cn807bber78gd" path="res://controls.gd" id="1_coq8p"]
 [ext_resource type="Script" uid="uid://ncp0dkbfngf1" path="res://camera.gd" id="1_sasra"]
@@ -18,13 +18,19 @@ bg_color = Color(0.12, 0.12, 0.12, 1)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7cbxl"]
 
+[sub_resource type="CodeHighlighter" id="CodeHighlighter_vr1i5"]
+number_color = Color(0.486275, 0.756863, 0.678431, 1)
+symbol_color = Color(0.654902, 0.772549, 0.976471, 1)
+function_color = Color(0.4, 0.898039, 1, 1)
+member_variable_color = Color(0.717647, 0.72549, 0.741176, 1)
+
 [sub_resource type="CodeHighlighter" id="CodeHighlighter_7cbxl"]
 number_color = Color(0.486275, 0.756863, 0.678431, 1)
 symbol_color = Color(0.654902, 0.772549, 0.976471, 1)
 function_color = Color(0.4, 0.898039, 1, 1)
 member_variable_color = Color(0.717647, 0.72549, 0.741176, 1)
 
-[sub_resource type="CodeHighlighter" id="CodeHighlighter_vr1i5"]
+[sub_resource type="CodeHighlighter" id="CodeHighlighter_rpuu0"]
 number_color = Color(0.486275, 0.756863, 0.678431, 1)
 symbol_color = Color(0.654902, 0.772549, 0.976471, 1)
 function_color = Color(0.4, 0.898039, 1, 1)
@@ -89,11 +95,10 @@ size_flags_vertical = 3
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_njel3")
-current_tab = 2
+current_tab = 0
 
 [node name="Editor" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer" groups=["Editor"]]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.803922, 0.807843, 0.823529, 1)
@@ -137,88 +142,30 @@ gutters_draw_fold_gutter = true
 script = ExtResource("7_8pr8v")
 metadata/_tab_index = 1
 
-[node name="Docs" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_fonts/font = ExtResource("3_coq8p")
-theme_override_styles/read_only = SubResource("StyleBoxEmpty_7cbxl")
-text = "# Move character in a given direction one tile
-# Returns the TileInfo for the tile moved into
-move(direction:Direction) -> TileInfo
-
-# Possible Direction values
-Direction {
-	RIGHT,
-	DOWN,
-	LEFT,
-	UP
-}
-
-# Check what tile a move will take you to, without moving
-check_move(direction:Direction) -> TileInfo
-
-# TileInfo returned, which can be used to determine a reaction
-# name may be empty
-class TileInfo:
-	type:TileInfo.TileType
-	name:String
-
-# Possible TileInfo.TileType values
-enum TileInfo.TileType {
-	EMPTY,
-	WALL,
-	ENEMY,
-	FLOPPY,
-	ITEM
-}
-
-# If statements can be used to check for a condition
-if condition:
-	# do something if condition is true
-
-# Repeat loops can be used to repeat n times
-repeat n:
-	# do something n times
-
-# While loops can be used to repeat something as long as a condition is met
-while condition:
-	# repeatedly do something so long as condition is true
-
-# Use continue to skip to next loop iteration, or break to exit the loop early
-"
-minimap_draw = true
-syntax_highlighter = SubResource("CodeHighlighter_7cbxl")
-gutters_draw_breakpoints_gutter = true
-gutters_draw_bookmarks = true
-gutters_draw_executing_lines = true
-gutters_draw_line_numbers = true
-gutters_draw_fold_gutter = true
-indent_use_spaces = true
-auto_brace_completion_enabled = true
-auto_brace_completion_highlight_matching = true
-script = ExtResource("7_8pr8v")
-metadata/_tab_index = 2
-
-[node name="Examples" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer"]
-unique_name_in_owner = true
+[node name="Docs" type="TabContainer" parent="Controls/VSplitContainer/ControlsRegion/TabContainer"]
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_njel3")
+current_tab = 0
+metadata/_tab_index = 2
+
+[node name="Basics" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer/Docs"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
 theme_override_fonts/font = ExtResource("3_coq8p")
 theme_override_styles/read_only = SubResource("StyleBoxEmpty_7cbxl")
-text = "
-# Move character in a given direction one tile
-move(direction)
-# Possible values for direction include
-Direction.RIGHT, Direction.LEFT, Direction.UP, Direction.DOWN
+text = "# This \"#\" symbol marks a comment. Comments don't get executed
+# You can call functions by writing the name followed by parenthesis (), ie:
+do_something_cool()
 
-# Example: move right one tile
-move(Direction.RIGHT)
+# Different functions will perform different actions
+# Some functions will have a \"parameter\" which is something you can use to determine it's behavior:
+count_to(5)
 
-#Example: move up 7 tiles
-repeat 7:
-	move(Direction.UP)"
+# Some functions will also \"return\" a value, which is how they give you information,
+#  but more on that later (you can ignore this for now)"
 minimap_draw = true
 syntax_highlighter = SubResource("CodeHighlighter_vr1i5")
 gutters_draw_breakpoints_gutter = true
@@ -231,7 +178,100 @@ indent_use_spaces = true
 auto_brace_completion_enabled = true
 auto_brace_completion_highlight_matching = true
 script = ExtResource("7_8pr8v")
-metadata/_tab_index = 3
+metadata/_tab_index = 0
+
+[node name="Movement" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer/Docs"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_fonts/font = ExtResource("3_coq8p")
+theme_override_styles/read_only = SubResource("StyleBoxEmpty_7cbxl")
+text = "# The move function moves the character in a given direction
+# It returns the TileInfo for the tile moved into
+move(direction:Direction) -> TileInfo
+
+# Examples:
+
+# Move right one tile
+move(Direction.RIGHT)
+
+# Move left two tiles
+move(Direction.LEFT)
+move(Direction.LEFT)
+
+# Move right then up
+move(Direction.RIGHT)
+move(Direction.UP)
+
+# Possible Direction values
+Direction {
+	RIGHT,
+	DOWN,
+	LEFT,
+	UP
+}"
+minimap_draw = true
+syntax_highlighter = SubResource("CodeHighlighter_7cbxl")
+gutters_draw_breakpoints_gutter = true
+gutters_draw_bookmarks = true
+gutters_draw_executing_lines = true
+gutters_draw_line_numbers = true
+gutters_draw_fold_gutter = true
+indent_use_spaces = true
+auto_brace_completion_enabled = true
+auto_brace_completion_highlight_matching = true
+script = ExtResource("7_8pr8v")
+metadata/_tab_index = 1
+
+[node name="Reacting" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer/Docs"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_fonts/font = ExtResource("3_coq8p")
+theme_override_styles/read_only = SubResource("StyleBoxEmpty_7cbxl")
+text = "# You may want to avoid certain tiles, such as enemies,
+#  or move to others, such as the goal floppy disk or items
+# You can use this function to check what tile a move will take you to, without moving
+check_move(direction:Direction) -> TileInfo
+
+# You then can use that in an if statement to check for certain conditions
+# For example, you can check if the next tile is the goal using == to compare it:
+if check_move(Direction.RIGHT).type == TileInfo.TileType.FLOPPY:
+	move(Direction.RIGHT)
+else:
+	move(Direction.DOWN)
+
+# TileInfo returned, which can be used to determine a reaction
+# type has one of several values, listed below
+# name may be empty, or may be used for additional information
+#  (Strings are text inside quotes)
+class TileInfo:
+	type:TileInfo.TileType
+	name:String
+
+# Possible TileInfo.TileType values
+enum TileInfo.TileType {
+	EMPTY,
+	WALL,
+	ENEMY,
+	FLOPPY,
+	ITEM
+}"
+minimap_draw = true
+syntax_highlighter = SubResource("CodeHighlighter_rpuu0")
+gutters_draw_breakpoints_gutter = true
+gutters_draw_bookmarks = true
+gutters_draw_executing_lines = true
+gutters_draw_line_numbers = true
+gutters_draw_fold_gutter = true
+delimiter_strings = Array[String](["\" \"", "' '"])
+indent_use_spaces = true
+auto_brace_completion_enabled = true
+auto_brace_completion_highlight_matching = true
+script = ExtResource("7_8pr8v")
+metadata/_tab_index = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Controls/VSplitContainer/ControlsRegion"]
 layout_mode = 2
