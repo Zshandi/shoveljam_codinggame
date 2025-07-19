@@ -67,26 +67,30 @@ func _input(event: InputEvent) -> void:
 
 var is_executing := false
 var kill_execution := false
+var starting_code : String
 signal execution_killed
 
 func _on_go_pressed() -> void:
-	
+	%Editor.show()
 	%Reset.show()
 	%GO.hide()
-	
+	%Editor.is_editable = false
+	starting_code = %Editor.text
 	is_executing = true
 	await execute_block(0, 0)
 	is_executing = false
 	%Editor.set_line_as_executing(last_executed_line, false)
-	
 	if kill_execution:
 		execution_killed.emit()
 		return
 	
 	if context.dead:
-		%Editor.text += "\n!!ERROR: You crashed"
+		%Editor.text += "\n!!ERROR: You crashed!"
+		%crash_sfx.play()
 	else:
-		%Editor.text += "\n# Execution complete!"
+		%Editor.text += "\n** Execution completed without errors!"
+		%beep_sfx.stop()
+		%complete_sfx.play()
 
 func _on_reset_pressed():
 	if is_executing:
@@ -97,7 +101,7 @@ func _on_reset_pressed():
 	LevelManager.load_current()
 	reset_output()
 	%Editor.show()
-	
+	%Editor.is_editable = true
 	%Reset.hide()
 	%GO.show()
 
@@ -118,6 +122,7 @@ var has_error := false
 func output_result(line_num:int, result:ExecutionResult) -> void:
 	if result.status == ResultStatus.Completed:
 		set_output(line_num, result.value_str)
+		%beep_sfx.play()
 	elif result.status == ResultStatus.Failed:
 		context.trigger_death()
 		set_output(line_num, "!!ERROR: " + result.value_str)
@@ -125,14 +130,7 @@ func output_result(line_num:int, result:ExecutionResult) -> void:
 		has_error = true
 
 func reset_output():
-	var line_num = 0
-	while line_num < %Editor.get_line_count():
-		set_output(line_num, null)
-		if %Editor.get_line(line_num).begins_with("!!ERROR") or %Editor.get_line(line_num) == "# Execution complete!":
-			%Editor.remove_line_at(line_num)
-		else:
-			line_num += 1
-	has_error = false
+	%Editor.text = starting_code
 
 func skip_block(line_num:int, until_indent_level:int, clear_output := true) -> int:
 	while  line_num < %Editor.get_line_count():

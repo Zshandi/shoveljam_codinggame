@@ -1,4 +1,4 @@
-extends CodeEdit
+extends CodeUnedit
 
 var text_before_regex := RegEx.new()
 var line_before_regex := RegEx.new()
@@ -21,6 +21,7 @@ var pre_quit_regex := RegEx.new()
 var pre_global_func_regex := RegEx.new()
 
 func _ready() -> void:
+	super()
 	code_completion_prefixes = [".", "(", "= "]
 	
 	# Matches all non-whitespace characters immediately preceding the caret (0xFFFF)
@@ -130,4 +131,8 @@ func add_enum_values(value:String, enum_name:String, enum_type:Dictionary):
 	return false
 
 func _on_text_changed() -> void:
-	_request_code_completion(true)
+	super()
+	if is_editable:
+		%type1_sfx.play()
+		_request_code_completion(true)
+		

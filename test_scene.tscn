@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://bfsi8tw4oi3ni"]
+[gd_scene load_steps=22 format=3 uid="uid://bfsi8tw4oi3ni"]
 
 [ext_resource type="Script" uid="uid://cn807bber78gd" path="res://controls.gd" id="1_coq8p"]
 [ext_resource type="Script" uid="uid://ncp0dkbfngf1" path="res://camera.gd" id="1_sasra"]
@@ -10,19 +10,25 @@
 [ext_resource type="Texture2D" uid="uid://cob85r7f2gfnr" path="res://assets/textures/CodeExecArrow.png" id="6_vr1i5"]
 [ext_resource type="Script" uid="uid://c7llt3mqjv8fe" path="res://code_unedit.gd" id="7_8pr8v"]
 [ext_resource type="Texture2D" uid="uid://camacgt0vrwd" path="res://assets/tilemap/title.png" id="8_buypi"]
+[ext_resource type="AudioStream" uid="uid://c7mm3brgwtqst" path="res://assets/sounds/beep.wav" id="11_4gito"]
+[ext_resource type="AudioStream" uid="uid://ch0ajal4qf0er" path="res://assets/sounds/crash.wav" id="11_fbuy2"]
+[ext_resource type="AudioStream" uid="uid://bhirpsn00ourx" path="res://assets/sounds/complete.wav" id="12_fbuy2"]
+[ext_resource type="AudioStream" uid="uid://ddcrdfix73y7n" path="res://assets/sounds/type.wav" id="13_0k8yu"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_njel3"]
 bg_color = Color(0.12, 0.12, 0.12, 1)
 
-[sub_resource type="CodeHighlighter" id="CodeHighlighter_coq8p"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_fbuy2"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7cbxl"]
+[sub_resource type="CodeHighlighter" id="CodeHighlighter_coq8p"]
 
 [sub_resource type="CodeHighlighter" id="CodeHighlighter_vr1i5"]
 number_color = Color(0.486275, 0.756863, 0.678431, 1)
 symbol_color = Color(0.654902, 0.772549, 0.976471, 1)
 function_color = Color(0.4, 0.898039, 1, 1)
 member_variable_color = Color(0.717647, 0.72549, 0.741176, 1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7cbxl"]
 
 [sub_resource type="CodeHighlighter" id="CodeHighlighter_7cbxl"]
 number_color = Color(0.486275, 0.756863, 0.678431, 1)
@@ -103,6 +109,7 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.803922, 0.807843, 0.823529, 1)
 theme_override_fonts/font = ExtResource("3_coq8p")
+theme_override_styles/read_only = SubResource("StyleBoxEmpty_fbuy2")
 theme_override_icons/executing_line = ExtResource("6_vr1i5")
 placeholder_text = "Type your code here"
 minimap_draw = true
@@ -131,7 +138,7 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_coq8p")
-placeholder_text = "Variables will appear here"
+placeholder_text = "Variables you define will appear here"
 minimap_draw = true
 syntax_highlighter = SubResource("CodeHighlighter_coq8p")
 gutters_draw_breakpoints_gutter = true
@@ -155,17 +162,38 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_fonts/font = ExtResource("3_coq8p")
-theme_override_styles/read_only = SubResource("StyleBoxEmpty_7cbxl")
-text = "# This \"#\" symbol marks a comment. Comments don't get executed
+text = "# This \"#\" symbol marks a comment. Comments don't get executed.
+
+# A function is a bit of code that performs an action, like moving the player.
 # You can call functions by writing the name followed by parenthesis (), ie:
 do_something_cool()
 
-# Different functions will perform different actions
-# Some functions will have a \"parameter\" which is something you can use to determine it's behavior:
+# Some functions will have a \"parameter\", which is something you can use to change it's behavior:
 count_to(5)
 
-# Some functions will also \"return\" a value, which is how they give you information,
-#  but more on that later (you can ignore this for now)"
+# Sometimes you might want to do something multiple times.
+# Instead of writing out the same line many times, you could use a repeat:
+repeat 10:
+	move_towards_goal()
+
+# Some functions will also \"return\" a value, which is how they give you information
+# You can use a variable to save this information for later use
+# Variables must be a single word and can't contain any special symbols
+# You can create a variable like this:
+var my_variable = 10
+
+# And you can save the return value of a function like this:
+var result = add(5,3)
+
+# You only need to write \"var\" when you first create the variable
+# To use your variable, you can write it instead of a value
+count_to(my_variable)
+
+# You can also change the value of your variable at any time like this
+# and afterwards any code will use the new value instead of the old one
+my_variable = 20
+
+"
 minimap_draw = true
 syntax_highlighter = SubResource("CodeHighlighter_vr1i5")
 gutters_draw_breakpoints_gutter = true
@@ -173,7 +201,6 @@ gutters_draw_bookmarks = true
 gutters_draw_executing_lines = true
 gutters_draw_line_numbers = true
 gutters_draw_fold_gutter = true
-delimiter_strings = Array[String](["\" \"", "' '"])
 indent_use_spaces = true
 auto_brace_completion_enabled = true
 auto_brace_completion_highlight_matching = true
@@ -187,7 +214,9 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_fonts/font = ExtResource("3_coq8p")
 theme_override_styles/read_only = SubResource("StyleBoxEmpty_7cbxl")
-text = "# The move function moves the character in a given direction
+text = "# Here are some functions you can use during the game:
+
+# The move function moves the character in a given direction
 # It returns the TileInfo for the tile moved into
 move(direction:Direction) -> TileInfo
 
@@ -231,9 +260,9 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_fonts/font = ExtResource("3_coq8p")
 theme_override_styles/read_only = SubResource("StyleBoxEmpty_7cbxl")
-text = "# You may want to avoid certain tiles, such as enemies,
+text = "# You may want to avoid certain tiles, such as walls or error tiles,
 #  or move to others, such as the goal floppy disk or items
-# You can use this function to check what tile a move will take you to, without moving
+# You can use this function to check what tile you will end up on without moving
 check_move(direction:Direction) -> TileInfo
 
 # You then can use that in an if statement to check for certain conditions
@@ -266,7 +295,6 @@ gutters_draw_bookmarks = true
 gutters_draw_executing_lines = true
 gutters_draw_line_numbers = true
 gutters_draw_fold_gutter = true
-delimiter_strings = Array[String](["\" \"", "' '"])
 indent_use_spaces = true
 auto_brace_completion_enabled = true
 auto_brace_completion_highlight_matching = true
@@ -294,6 +322,24 @@ text = "RESET"
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(1, -129)
 texture = ExtResource("8_buypi")
+
+[node name="Node2D" type="Node2D" parent="."]
+
+[node name="crash_sfx" type="AudioStreamPlayer" parent="Node2D"]
+unique_name_in_owner = true
+stream = ExtResource("11_fbuy2")
+
+[node name="beep_sfx" type="AudioStreamPlayer" parent="Node2D"]
+unique_name_in_owner = true
+stream = ExtResource("11_4gito")
+
+[node name="complete_sfx" type="AudioStreamPlayer" parent="Node2D"]
+unique_name_in_owner = true
+stream = ExtResource("12_fbuy2")
+
+[node name="type1_sfx" type="AudioStreamPlayer" parent="Node2D"]
+unique_name_in_owner = true
+stream = ExtResource("13_0k8yu")
 
 [connection signal="mouse_entered" from="Controls/VSplitContainer/LevelRegion" to="Controls/VSplitContainer/LevelRegion" method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="Controls/VSplitContainer/LevelRegion" to="Controls/VSplitContainer/LevelRegion" method="_on_mouse_exited"]
