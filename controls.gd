@@ -13,7 +13,10 @@ const MEMBER_KEYWORD_COLOUR = Color(0xbce0ffff)
 
 func _ready():
 	%Editor.grab_focus()
-	#sdsds
+	
+	add_syntax_highlighting()
+
+func add_syntax_highlighting():
 	for x in [%Editor,%Variables, %Docs]:
 		x.syntax_highlighter.function_color = Color(0x57b3ffff)
 		x.syntax_highlighter.number_color = Color(0xa1ffe0ff)
@@ -74,6 +77,7 @@ func _on_go_pressed() -> void:
 	is_executing = true
 	await execute_block(0, 0)
 	is_executing = false
+	%Editor.set_line_as_executing(last_executed_line, false)
 	
 	if kill_execution:
 		execution_killed.emit()
@@ -216,7 +220,7 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 				continue
 			
 			var condition = if_regex_result.get_string(1)
-			var condition_result = await execute_expression(condition)
+			var condition_result = await execute_expression(condition, line_num)
 			
 			output_result(line_num, condition_result)
 			
@@ -283,7 +287,7 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 		var repeat_regex_result := repeat_regex.search(stripped_line)
 		if repeat_regex_result != null:
 			var count = repeat_regex_result.get_string(1)
-			var count_result = await execute_expression(count)
+			var count_result = await execute_expression(count, line_num)
 			
 			if context.dead or count_result.status == ResultStatus.Failed:
 				output_result(line_num, count_result)
@@ -296,18 +300,23 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 			
 			var line_num_prev = line_num
 			for i in range(count_result.value):
+				
+				set_executing_line(line_num_prev)
+				set_output(line_num_prev, "loop " + str(i+1) + " out of " + count_result.value_str)
+				if i != 0:
+					await get_tree().create_timer(execution_min_time_ms / 1000.0).timeout
 				# This skip is just to clear the output
 				skip_block(line_num_prev + 1, expected_indent_level, true)
-				set_output(line_num_prev, "loop " + str(i+1) + " out of " + count_result.value_str)
 				
 				line_num = await execute_block(line_num_prev + 1, expected_indent_level + 1, true)
 				if has_error:
 					return %Editor.get_line_count()
 				elif line_num is LoopControl:
-					if line_num == LoopControl.CONTINUE:
-						continue
-					elif line_num == LoopControl.BREAK:
+					if line_num == LoopControl.BREAK:
 						break
+					# Let continue fall out so we wait either way
+				
+				await get_tree().create_timer(execution_min_time_ms / 1000.0).timeout
 			
 			# Need to get proper line_num
 			line_num = skip_block(line_num_prev + 1, expected_indent_level, false)
@@ -325,10 +334,13 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 			var condition = while_regex_result.get_string(1)
 			
 			var line_num_prev = line_num
+			var has_looped := false
 			while true:
+				if has_looped:
+					await get_tree().create_timer(execution_min_time_ms / 1000.0).timeout
+				has_looped = true
 				
-				print_debug("executing: ", condition)
-				var condition_result = await execute_expression(condition)
+				var condition_result = await execute_expression(condition, line_num_prev)
 				output_result(line_num_prev, condition_result)
 				
 				if context.dead or condition_result.status == ResultStatus.Failed:
@@ -358,7 +370,7 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 		
 		## Finally, just evaluate the single line
 		
-		var result := await execute_line(stripped_line)
+		var result := await execute_line(stripped_line, line_num)
 		output_result(line_num, result)
 		
 		if context.dead or result.status == ResultStatus.Failed:
@@ -368,7 +380,7 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 	
 	return line_num
 
-func execute_line(line:String) -> ExecutionResult:
+func execute_line(line:String, line_num:int) -> ExecutionResult:
 	
 	var variable_declair_regex = RegEx.new()
 	variable_declair_regex.compile("^var\\s([a-zA-Z_][a-zA-Z_0-9]*)$")
@@ -409,7 +421,7 @@ func execute_line(line:String) -> ExecutionResult:
 			else:
 				return ExecutionResult.new("Invalid variable name. Variable names can only contain letters, numbers, underscores, and cannot start with a number", ResultStatus.Failed)
 			
-			var evaluated_value = await execute_expression(variable_value)
+			var evaluated_value = await execute_expression(variable_value, line_num)
 			
 			if evaluated_value.status == ResultStatus.Completed:
 				context.user_variables[var_name] = evaluated_value.value
@@ -428,7 +440,7 @@ func execute_line(line:String) -> ExecutionResult:
 		return ExecutionResult.new("(variable defined with no value)", ResultStatus.Completed)
 	
 	print("final line: ", line)
-	return await execute_expression(line)
+	return await execute_expression(line, line_num)
 
 func replace_vars_with_dictionaries(expr:String) -> String:
 	# TODO: There's a better way to do this...
@@ -444,15 +456,23 @@ func wait_for_ticks(ticks_ms:int) -> void:
 	var seconds_remaining := ms_remaining / 1000.0
 	await get_tree().create_timer(seconds_remaining).timeout
 
-func execute_expression(expr:String) -> ExecutionResult:
+var last_executed_line := 0
+func set_executing_line(line_num:int):
+	%Editor.set_line_as_executing(last_executed_line, false)
+	%Editor.set_line_as_executing(line_num, true)
+	last_executed_line = line_num
+
+func execute_expression(expr:String, line_num:int) -> ExecutionResult:
+	
+	set_executing_line(line_num)
 	
 	var end_ticks = Time.get_ticks_msec() + execution_min_time_ms
 	expr = replace_vars_with_dictionaries(expr)
 	
-	var error = expression.parse(expr, ["DisplayServer"])
+	var error = expression.parse(expr, ["DisplayServer", "TileInfo"])
 	if error != OK:
 		return ExecutionResult.new("Parse error: " + expression.get_error_text(), ResultStatus.Failed)
-	var result = await expression.execute([DisplayServer], context)
+	var result = await expression.execute([DisplayServer, TileInfo], context)
 	if kill_execution:
 		return ExecutionResult.new("Execution stopped", ResultStatus.Failed)
 	if not expression.has_execute_failed():
