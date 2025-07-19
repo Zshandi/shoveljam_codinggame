@@ -22,6 +22,8 @@ var pre_global_func_regex := RegEx.new()
 
 func _ready() -> void:
 	super()
+	is_editable = true
+	context_menu_enabled = true
 	code_completion_prefixes = [".", "(", "= "]
 	
 	# Matches all non-whitespace characters immediately preceding the caret (0xFFFF)

@@ -68,9 +68,11 @@ func _input(event: InputEvent) -> void:
 var is_executing := false
 var kill_execution := false
 var starting_code : String
+var has_error := false
 signal execution_killed
 
 func _on_go_pressed() -> void:
+	has_error = false
 	%Editor.show()
 	%Reset.show()
 	%GO.hide()
@@ -85,12 +87,13 @@ func _on_go_pressed() -> void:
 		return
 	
 	if context.dead:
-		%Editor.text += "\n!!ERROR: You crashed!"
+		%Editor.add_text("\n!!ERROR: You crashed!")
 		%crash_sfx.play()
 	else:
-		%Editor.text += "\n** Execution completed without errors!"
+		%Editor.add_text("\n** Execution completed without errors!")
 		%beep_sfx.stop()
 		%complete_sfx.play()
+	%Editor.set_caret_line(%Editor.get_line_count())
 
 func _on_reset_pressed():
 	if is_executing:
@@ -114,10 +117,8 @@ func set_output(line_num:int, output:Variant):
 	if output != null:
 		line = line + output_prefix + str(output)
 		print_debug("result for line ", line_num, ": ", output)
-	%Editor.set_line(line_num, line)
+	%Editor.set_line_text(line_num, line)
 	%Editor.set_line_as_center_visible(line_num)
-
-var has_error := false
 
 func output_result(line_num:int, result:ExecutionResult) -> void:
 	if result.status == ResultStatus.Completed:
@@ -126,7 +127,7 @@ func output_result(line_num:int, result:ExecutionResult) -> void:
 	elif result.status == ResultStatus.Failed:
 		context.trigger_death()
 		set_output(line_num, "!!ERROR: " + result.value_str)
-		%Editor.text += "\n!!ERROR: " + result.value_str
+		%Editor.add_text("\n!!ERROR: " + result.value_str)
 		has_error = true
 
 func reset_output():
@@ -158,7 +159,7 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 	var was_if := false
 	var was_if_consumed := false
 	
-	while  line_num < %Editor.get_line_count():
+	while line_num < %Editor.get_line_count():
 		var line = %Editor.get_line(line_num)
 		
 		var stripped_line = line.split("#", true, 1)[0].strip_edges()
@@ -487,7 +488,7 @@ func execute_expression(expr:String, line_num:int) -> ExecutionResult:
 func update_var_display() -> void:
 	%Variables.text = ""
 	for variable in context.user_variables:
-		%Variables.text += "%s: %s\n" % [variable, str(context.user_variables[variable])]
+		%Variables.add_text("%s: %s\n" % [variable, str(context.user_variables[variable])])
 
 enum ResultStatus {
 	Completed,
