@@ -11,6 +11,38 @@ const KEYWORD_COLOUR = Color(0xff7085ff)
 const CONTROL_FLOW_KEYWORD_COLOUR = Color(0xff8cccff)
 const MEMBER_KEYWORD_COLOUR = Color(0xbce0ffff)
 
+
+const keywords = [
+	"var",
+	"true",
+	"false",
+	"in",
+	"func",
+	"class",
+	"enum",
+	"is",
+	"const",
+	"await",
+	"and",
+	"or",
+	"not",
+	"null",
+	"self"
+]
+
+const control_flow_keywords = [
+	"for",
+	"while",
+	"repeat",
+	"if",
+	"elif",
+	"else",
+	"return",
+	"pass",
+	"break",
+	"continue"
+]
+
 func _ready():
 	%Editor.grab_focus()
 	
@@ -28,33 +60,10 @@ func add_syntax_highlighting():
 		x.syntax_highlighter.add_color_region("!!","",Color(0xff786bff),true)
 		x.syntax_highlighter.add_color_region("**","",Color(0x42ffc2ff),true)
 		
-		x.syntax_highlighter.add_keyword_color("var",KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("true",KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("false",KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("in",KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("func",KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("class",KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("enum",KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("const",KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("await",KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("and",KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("or",KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("not",KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("null",KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("self",KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("ERROR",KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("is",KEYWORD_COLOUR)
-		
-		x.syntax_highlighter.add_keyword_color("for",CONTROL_FLOW_KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("if",CONTROL_FLOW_KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("elif",CONTROL_FLOW_KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("else",CONTROL_FLOW_KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("return",CONTROL_FLOW_KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("break",CONTROL_FLOW_KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("continue",CONTROL_FLOW_KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("pass",CONTROL_FLOW_KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("while",CONTROL_FLOW_KEYWORD_COLOUR)
-		x.syntax_highlighter.add_keyword_color("repeat",CONTROL_FLOW_KEYWORD_COLOUR)
+		for k in keywords:
+			x.syntax_highlighter.add_keyword_color(k,KEYWORD_COLOUR)
+		for k in control_flow_keywords:
+			x.syntax_highlighter.add_keyword_color(k,CONTROL_FLOW_KEYWORD_COLOUR)
 
 func _input(event: InputEvent) -> void:
 	if event.is_action("Go_Keyboard") and event.is_pressed():
@@ -411,10 +420,13 @@ func execute_line(line:String, line_num:int) -> ExecutionResult:
 			if var_regex_result != null:
 				var_name = var_regex_result.get_string(1)
 				%Editor.syntax_highlighter.add_member_keyword_color(var_name,MEMBER_KEYWORD_COLOUR)
-				if var_name in context.user_variables:
-					# This is to account for dictionary assignment also adding the value
-					var correct_expression = "(use '" + var_name + " = " + variable_value + "' instead)"
-					return ExecutionResult.new("re-defined variable: only need var once " + correct_expression, ResultStatus.Failed)
+				if var_name in keywords or var_name in control_flow_keywords:
+					return ExecutionResult.new("cannot use %s as a variable name" % var_name, ResultStatus.Failed)
+				# commenting this out for now until we support scoping in loops
+				#if var_name in context.user_variables:
+					## This is to account for dictionary assignment also adding the value
+					#var correct_expression = "(use '" + var_name + " = " + variable_value + "' instead)"
+					#return ExecutionResult.new("re-defined variable: only need var once " + correct_expression, ResultStatus.Failed)
 			elif variable_name_regex.search(left_hand_side) != null:
 				if !(var_name in context.user_variables):
 					# This is to account for dictionary assignment also adding the value
