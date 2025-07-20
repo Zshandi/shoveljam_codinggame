@@ -5,4 +5,4 @@ func _ready():
 	# checkerboard pattern
 	for tile in tile_data:
 		if abs((tile.x+tile.y)%2) == 1:
-			set_cell(tile,1,Vector2i(2,0))  
+			set_cell(tile,1,Vector2i(2,0))

@@ -4,8 +4,8 @@
 [ext_resource type="Script" uid="uid://ncp0dkbfngf1" path="res://camera.gd" id="1_sasra"]
 [ext_resource type="PackedScene" uid="uid://cc1fomjf362h5" path="res://addons/flowerwall_postprocess/scenes/flowerwall_pp.tscn" id="2_njel3"]
 [ext_resource type="Script" uid="uid://cwhe24e11hw4e" path="res://level_region.gd" id="3_2nij2"]
-[ext_resource type="FontFile" uid="uid://gm7xtq7qb10v" path="res://assets/fonts/JetBrainsMono-2.304/fonts/ttf/JetBrainsMono-Regular.ttf" id="3_coq8p"]
 [ext_resource type="CodeHighlighter" uid="uid://bp3petfrnrf4" path="res://syntax_highlighter.tres" id="4_2nij2"]
+[ext_resource type="FontFile" uid="uid://r0uqpgy786w0" path="res://assets/fonts/JetBrainsMono-2.304/fonts/ttf/JetBrainsMonoNL-Regular.ttf" id="5_0k8yu"]
 [ext_resource type="Script" uid="uid://bm4jhmns7n0ya" path="res://input.gd" id="6_7cbxl"]
 [ext_resource type="Texture2D" uid="uid://cob85r7f2gfnr" path="res://assets/textures/CodeExecArrow.png" id="6_vr1i5"]
 [ext_resource type="Script" uid="uid://c7llt3mqjv8fe" path="res://code_unedit.gd" id="7_8pr8v"]
@@ -108,7 +108,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.803922, 0.807843, 0.823529, 1)
-theme_override_fonts/font = ExtResource("3_coq8p")
+theme_override_fonts/font = ExtResource("5_0k8yu")
 theme_override_styles/read_only = SubResource("StyleBoxEmpty_fbuy2")
 theme_override_icons/executing_line = ExtResource("6_vr1i5")
 placeholder_text = "Type your code here"
@@ -131,13 +131,14 @@ indent_automatic = true
 auto_brace_completion_enabled = true
 auto_brace_completion_highlight_matching = true
 script = ExtResource("6_7cbxl")
+is_editable = true
 metadata/_tab_index = 0
 
 [node name="Variables" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_fonts/font = ExtResource("3_coq8p")
+theme_override_fonts/font = ExtResource("5_0k8yu")
 placeholder_text = "Variables you define will appear here"
 minimap_draw = true
 syntax_highlighter = SubResource("CodeHighlighter_coq8p")
@@ -161,7 +162,7 @@ metadata/_tab_index = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_fonts/font = ExtResource("3_coq8p")
+theme_override_fonts/font = ExtResource("5_0k8yu")
 text = "# This \"#\" symbol marks a comment. Comments don't get executed.
 
 # A function is a bit of code that performs an action, like moving the player.
@@ -212,7 +213,7 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_fonts/font = ExtResource("3_coq8p")
+theme_override_fonts/font = ExtResource("5_0k8yu")
 theme_override_styles/read_only = SubResource("StyleBoxEmpty_7cbxl")
 text = "# Here are some functions you can use during the game:
 
@@ -258,7 +259,7 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_fonts/font = ExtResource("3_coq8p")
+theme_override_fonts/font = ExtResource("5_0k8yu")
 theme_override_styles/read_only = SubResource("StyleBoxEmpty_7cbxl")
 text = "# You may want to avoid certain tiles, such as walls or error tiles,
 #  or move to others, such as the goal floppy disk or items

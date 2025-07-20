@@ -26,19 +26,21 @@ var level_list := [
 
 
 var editor = null
+var controls = null
 
 func _ready() -> void:
 	editor = get_tree().get_first_node_in_group(&"Editor")
+	controls = get_tree().get_first_node_in_group(&"Controls")
 	load_next()
 
 var current_level:int = -1
 
 func load_next():
-	current_level = current_level + 1
+	current_level += 1
 	var level_data = level_list[current_level]
+	controls.reset_state()
 	editor.text = level_data["text"]
 	editor.set_caret_line(editor.get_line_count())
-	load_current()
 
 func load_current():
 	for child in get_children():

@@ -101,6 +101,9 @@ func _on_reset_pressed():
 		await execution_killed
 		kill_execution = false
 	is_executing = false
+	
+
+func reset_state():
 	LevelManager.load_current()
 	reset_output()
 	%Editor.show()
