@@ -24,6 +24,7 @@ func set_line_text(line_num:int, new_text:String) -> void:
 	set_line(line_num, new_text)
 	await text_updated
 	edit_override = false
+	
 
 func _on_text_changed() -> void:
 	if not is_editable and not edit_override:
@@ -35,7 +36,7 @@ func _on_text_changed() -> void:
 		set_caret_line(caret_line)
 	else:
 		original_text = text
-	emit_signal("text_updated")
+	text_updated.emit()
 
 func _on_text_set():
 	original_text = text

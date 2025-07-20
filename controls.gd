@@ -17,7 +17,7 @@ func _ready():
 	add_syntax_highlighting()
 
 func add_syntax_highlighting():
-	for x in [%Editor,%Variables, %Basics, %Movement, %Reacting]:
+	for x in [%Editor,%Variables, %Basics, %Movement, %Reacting, %About]:
 		x.syntax_highlighter.function_color = Color(0x57b3ffff)
 		x.syntax_highlighter.number_color = Color(0xa1ffe0ff)
 		x.syntax_highlighter.member_variable_color = Color(0xbce0ffff)
@@ -101,7 +101,7 @@ func _on_reset_pressed():
 		await execution_killed
 		kill_execution = false
 	is_executing = false
-	
+	reset_state()
 
 func reset_state():
 	LevelManager.load_current()

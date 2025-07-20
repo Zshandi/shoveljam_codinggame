@@ -135,6 +135,7 @@ func add_enum_values(value:String, enum_name:String, enum_type:Dictionary):
 func _on_text_changed() -> void:
 	super()
 	if is_editable:
-		%type1_sfx.play()
+		if Options.typing_sound_enabled:
+			%type1_sfx.play()
 		_request_code_completion(true)
 		
