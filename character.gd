@@ -11,6 +11,7 @@ enum Direction {
 
 signal player_death
 signal player_victory
+signal player_move
 
 @export var movement_speed = 50
 
@@ -64,6 +65,7 @@ func move(direction:Direction) -> TileInfo:
 	moving = true
 	await %MoveTimer.timeout
 	moving = false
+	emit_signal("player_move",global_position,goal_position)
 	velocity = Vector2.ZERO
 	return move_result
 	

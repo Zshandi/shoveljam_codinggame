@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://cr3imuml2h82i" path="res://assets/tilemap/character.png" id="2_pjt0s"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sasra"]
-size = Vector2(14, 14)
+size = Vector2(16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wfnr8"]
 atlas = ExtResource("2_pjt0s")

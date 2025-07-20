@@ -50,7 +50,7 @@ member_variable_color = Color(0.717647, 0.72549, 0.741176, 1)
 
 [node name="flowerwall_pp" parent="." instance=ExtResource("2_njel3")]
 
-[node name="Levels" type="Node2D" parent="."]
+[node name="Levels" type="Node2D" parent="." groups=["level"]]
 unique_name_in_owner = true
 
 [node name="Camera" type="Camera2D" parent="."]
@@ -418,7 +418,6 @@ crt_filter.by = \"Art-Michel\"
 
 version = [version]
 "
-scroll_vertical = 7.0
 minimap_draw = true
 syntax_highlighter = SubResource("CodeHighlighter_k6its")
 gutters_draw_breakpoints_gutter = true

@@ -26,6 +26,8 @@ Options="*res://options.gd"
 Character="Character"
 Controls=""
 Editor=""
+tilemap=""
+level=""
 
 [input]
 

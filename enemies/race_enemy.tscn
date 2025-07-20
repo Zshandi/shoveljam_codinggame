@@ -1,49 +1,49 @@
-[gd_scene load_steps=9 format=3 uid="uid://jiu65klsw20t"]
+[gd_scene load_steps=9 format=3 uid="uid://dyldwwoiakh64"]
 
-[ext_resource type="Script" uid="uid://de00odhnq3015" path="res://null_enemy.gd" id="1_icgoi"]
-[ext_resource type="Texture2D" uid="uid://dw44jc8ahow3e" path="res://assets/tilemap/nullenemy.png" id="1_m2yub"]
+[ext_resource type="Script" uid="uid://dia8sy3gb6lf4" path="res://enemies/race_enemy.gd" id="1_w0u7m"]
+[ext_resource type="Texture2D" uid="uid://ca8dqd2gw1wg4" path="res://assets/tilemap/raceenemy.png" id="2_ovqkn"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_icgoi"]
-size = Vector2(14, 14)
+size = Vector2(12, 12)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_c1m1y"]
-atlas = ExtResource("1_m2yub")
+[sub_resource type="AtlasTexture" id="AtlasTexture_wxbkx"]
+atlas = ExtResource("2_ovqkn")
 region = Rect2(16, 0, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_xkf17"]
-atlas = ExtResource("1_m2yub")
+[sub_resource type="AtlasTexture" id="AtlasTexture_m4yeo"]
+atlas = ExtResource("2_ovqkn")
 region = Rect2(32, 0, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_crrg3"]
-atlas = ExtResource("1_m2yub")
+[sub_resource type="AtlasTexture" id="AtlasTexture_m5wgx"]
+atlas = ExtResource("2_ovqkn")
 region = Rect2(48, 0, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_t1wnp"]
-atlas = ExtResource("1_m2yub")
+[sub_resource type="AtlasTexture" id="AtlasTexture_gbd1g"]
+atlas = ExtResource("2_ovqkn")
 region = Rect2(0, 0, 16, 16)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_hepls"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_c1m1y")
+"texture": SubResource("AtlasTexture_wxbkx")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_xkf17")
+"texture": SubResource("AtlasTexture_m4yeo")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_crrg3")
+"texture": SubResource("AtlasTexture_m5wgx")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_t1wnp")
+"texture": SubResource("AtlasTexture_gbd1g")
 }],
 "loop": false,
 "name": &"default",
-"speed": 8.0
+"speed": 10.0
 }]
 
-[node name="null_enemy" type="Area2D"]
-script = ExtResource("1_icgoi")
+[node name="race_enemy" type="Area2D"]
+script = ExtResource("1_w0u7m")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_icgoi")

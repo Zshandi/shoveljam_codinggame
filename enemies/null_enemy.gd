@@ -3,6 +3,7 @@ class_name NullEnemy
 
 func _ready():
 	%Timer.start(randf_range(0,10))
+	
 
 func _on_body_entered(body):
 	if body is Player:
