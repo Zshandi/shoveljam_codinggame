@@ -45,7 +45,7 @@ const control_flow_keywords = [
 
 func _ready():
 	%Editor.grab_focus()
-	
+	%TabContainer.set_tab_title(0,"Editor")
 	add_syntax_highlighting()
 
 func add_syntax_highlighting():
@@ -503,7 +503,10 @@ func execute_expression(expr:String, line_num:int) -> ExecutionResult:
 func update_var_display() -> void:
 	%Variables.text = ""
 	for variable in context.user_variables:
-		%Variables.add_text("%s: %s\n" % [variable, str(context.user_variables[variable])])
+		if variable is String:
+			%Variables.add_text("%s: \"%s\"\n" % [variable, str(context.user_variables[variable])])
+		else:
+			%Variables.add_text("%s: %s\n" % [variable, str(context.user_variables[variable])])
 
 enum ResultStatus {
 	Completed,

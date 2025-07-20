@@ -98,6 +98,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="TabContainer" type="TabContainer" parent="Controls/VSplitContainer/ControlsRegion"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_njel3")
