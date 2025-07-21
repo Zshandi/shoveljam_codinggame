@@ -481,8 +481,11 @@ gutters_draw_fold_gutter = true
 script = ExtResource("11_hiucn")
 metadata/_tab_index = 4
 
+[node name="ExecutionTimer" type="Timer" parent="Controls"]
+unique_name_in_owner = true
+
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(1, -129)
+position = Vector2(0, -125)
 texture = ExtResource("8_buypi")
 
 [node name="Node2D" type="Node2D" parent="."]
