@@ -47,6 +47,7 @@ func _ready():
 	%Editor.grab_focus()
 	%TabContainer.set_tab_title(0,"Editor")
 	add_syntax_highlighting()
+	%Editor.show()
 
 func add_syntax_highlighting():
 	for x in [%Editor,%Variables, %Basics, %Movement, %Reacting, %About]:
@@ -92,6 +93,7 @@ func _on_go_pressed() -> void:
 	is_executing = false
 	%Editor.set_line_as_executing(last_executed_line, false)
 	if kill_execution:
+		await get_tree().create_timer(0.01).timeout
 		execution_killed.emit()
 		return
 	
@@ -104,21 +106,27 @@ func _on_go_pressed() -> void:
 		%complete_sfx.play()
 	%Editor.set_caret_line(%Editor.get_line_count())
 
-func _on_reset_pressed():
+func stop_execution():
 	if is_executing:
 		kill_execution = true
+		%ExecutionTimer.stop()
+		%ExecutionTimer.timeout.emit()
 		await execution_killed
 		kill_execution = false
 	is_executing = false
+
+func _on_reset_pressed():
 	reset_state()
+	LevelManager.load_current()
 
 func reset_state():
-	LevelManager.load_current()
+	await stop_execution()
 	reset_output()
 	%Editor.show()
 	%Editor.is_editable = true
 	%Reset.hide()
 	%GO.show()
+	has_error = false
 
 func set_output(line_num:int, output:Variant):
 	if line_num >= %Editor.get_line_count():
@@ -468,7 +476,8 @@ func replace_vars_with_dictionaries(expr:String) -> String:
 func wait_for_ticks(ticks_ms:int) -> void:
 	var ms_remaining := ticks_ms - Time.get_ticks_msec()
 	var seconds_remaining := ms_remaining / 1000.0
-	await get_tree().create_timer(seconds_remaining).timeout
+	%ExecutionTimer.start(seconds_remaining)
+	await %ExecutionTimer.timeout
 
 var last_executed_line := 0
 func set_executing_line(line_num:int):

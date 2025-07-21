@@ -69,6 +69,10 @@ func move(direction:Direction) -> TileInfo:
 	velocity = Vector2.ZERO
 	return move_result
 	
+func goto_level(level:int):
+		level = clamp(level-1,0,9)
+		LevelManager.load_level(level)
+	
 func grab() -> String:
 	return "not implemented... yet!"
 	
