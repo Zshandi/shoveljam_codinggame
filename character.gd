@@ -59,18 +59,20 @@ func move(direction:Direction) -> TileInfo:
 	goal_distance = TILE_WIDTH
 	var move_vector = _get_move_vector(direction)
 	var move_result := check_move(direction)
+	var speed = movement_speed * ((Options.code_execution_speed/2)+0.5)
 	goal_position = global_position + move_vector
-	velocity = move_vector.normalized() * movement_speed
-	%MoveTimer.start(goal_distance/movement_speed)
+	velocity = move_vector.normalized() * speed
+	%MoveTimer.start(goal_distance/speed)
 	moving = true
 	await %MoveTimer.timeout
 	moving = false
-	emit_signal("player_move",global_position,goal_position)
+	player_move.emit(global_position,goal_position)
+	LevelManager.update_enemies(global_position,goal_position)
 	velocity = Vector2.ZERO
 	return move_result
 	
 func goto_level(level:int):
-	level = clamp(level-1,0,9)
+	level = clamp(level-1,0,10)
 	LevelManager.load_level(level)
 	
 func grab() -> String:

@@ -16,7 +16,7 @@
 [ext_resource type="Script" uid="uid://b2f5dy08xd8bu" path="res://about.gd" id="11_hiucn"]
 [ext_resource type="AudioStream" uid="uid://bhirpsn00ourx" path="res://assets/sounds/complete.wav" id="12_fbuy2"]
 [ext_resource type="AudioStream" uid="uid://ddcrdfix73y7n" path="res://assets/sounds/type.wav" id="13_0k8yu"]
-[ext_resource type="AudioStream" uid="uid://ds4ni6pf82bx5" path="res://assets/sounds/bgm.mp3" id="17_k6its"]
+[ext_resource type="AudioStream" uid="uid://c5hvwbdxxqj1m" path="res://assets/sounds/bgm_edit.mp3" id="17_k6its"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_njel3"]
 bg_color = Color(0.12, 0.12, 0.12, 1)
@@ -463,12 +463,17 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_fonts/font = ExtResource("5_0k8yu")
-text = "
-game.by = \"Zshandi Krahn\" and \"Lachlann MacUisdin\"
+text = "game.version = [version]
 
-crt_filter.by = \"Art-Michel\"
+game.programming = [\"Zshandi Krahn\", \"Lachlann MacUisdin\"]
 
-version = [version]
+game.art = [\"Lachlann MacUisdin\"]
+
+game.music = [\"Brendan Marney\"]
+
+game.additional = {\"crt_filter\" : \"Art-Michel\"}
+
+game.end_message = \"Thanks for playing!\"
 "
 minimap_draw = true
 syntax_highlighter = SubResource("CodeHighlighter_k6its")
@@ -482,6 +487,7 @@ metadata/_tab_index = 4
 
 [node name="ExecutionTimer" type="Timer" parent="Controls"]
 unique_name_in_owner = true
+wait_time = 0.001
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(0, -125)
@@ -514,7 +520,6 @@ unique_name_in_owner = true
 stream = ExtResource("17_k6its")
 autoplay = true
 bus = &"Music"
-parameters/looping = false
 
 [connection signal="mouse_entered" from="Controls/VSplitContainer/LevelRegion" to="Controls/VSplitContainer/LevelRegion" method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="Controls/VSplitContainer/LevelRegion" to="Controls/VSplitContainer/LevelRegion" method="_on_mouse_exited"]

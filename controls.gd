@@ -320,6 +320,9 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 			var line_num_prev = line_num
 			for i in range(count_result.value):
 				
+				if context.dead or count_result.status == ResultStatus.Failed:
+					output_result(line_num, count_result)
+					return %Editor.get_line_count()
 				set_executing_line(line_num_prev)
 				set_output(line_num_prev, "loop " + str(i+1) + " out of " + count_result.value_str)
 				if i != 0:
@@ -478,9 +481,9 @@ func wait_for_ticks(ticks_ms:int) -> void:
 		return
 	var ms_remaining := ticks_ms - Time.get_ticks_msec()
 	var seconds_remaining := ms_remaining / 1000.0
-	print(seconds_remaining)
-	print(Options.min_code_exec_time_ms)
-	%ExecutionTimer.start(seconds_remaining)
+	print("starting timer with: ",seconds_remaining)
+	%ExecutionTimer.wait_time = max(seconds_remaining,0.001)
+	%ExecutionTimer.call_deferred("start")
 	await %ExecutionTimer.timeout
 
 var last_executed_line := 0

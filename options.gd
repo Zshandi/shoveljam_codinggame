@@ -31,7 +31,7 @@ var is_full_screen:bool:
 
 var typing_sound_enabled:bool = true
 
-const min_code_exec_time_ms_default := 650
+const min_code_exec_time_ms_default := 250
 var min_code_exec_time_ms:int = min_code_exec_time_ms_default
 
 var code_execution_speed:int:

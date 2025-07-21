@@ -9,10 +9,7 @@ var allowed_tiles = [
 
 func _ready():
 	%Timer.start(randf_range(0,5))
-	var controls = get_tree().get_first_node_in_group(&"Controls")
-	controls.context.player_move.connect(_on_player_move)
-	print(is_connected("player_move",_on_player_move))
-	
+	add_to_group("race")
 
 func _on_body_entered(body):
 	if body is Player:
@@ -38,5 +35,5 @@ func _on_player_move(player_initial,player_goal) -> void:
 		var tile_id = tilemap.get_cell_atlas_coords(tile)
 		if tile_id in allowed_tiles:
 			var tween = get_tree().create_tween()
-			tween.tween_property(self,"position",tilemap.map_to_local(tile),0.2)
+			tween.tween_property(self,"position",tilemap.map_to_local(tile),0.1)
 			

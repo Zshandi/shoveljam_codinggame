@@ -28,6 +28,7 @@ Controls=""
 Editor=""
 tilemap=""
 level=""
+race=""
 
 [input]
 

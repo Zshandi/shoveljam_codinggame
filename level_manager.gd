@@ -28,7 +28,7 @@ var level_list := [
 	},
 	{
 		"scene" : preload("res://levels/level_7.tscn"),
-		"text" : "# Race conditions are nasty errors! They move unpredictably every time you move\nRemember, you can check to see if a nearby tile has an error in it before you move there!\n"
+		"text" : "# Race conditions are nasty errors! They move unpredictably every time you move\n# Remember, you can check to see if a nearby tile has an error in it before you move there!\n"
 	},
 	{
 		"scene" : preload("res://levels/level_8.tscn"),
@@ -41,6 +41,10 @@ var level_list := [
 	{
 		"scene" : preload("res://levels/level_10.tscn"),
 		"text" : "# If you can reach the end of this one, you've truly mastered writing code!\n"
+	},
+	{
+		"scene" : preload("res://levels/level_11.tscn"),
+		"text" : "# Congratulations! You've completed all the levels!\n"
 	}
 ]
 
@@ -76,3 +80,8 @@ func load_level(level_index:int):
 		editor.set_caret_line(editor.get_line_count())
 	current_level = level_index
 	level_node.call_deferred("add_child",level)
+	
+func update_enemies(start,goal):
+	var enemies = get_tree().get_nodes_in_group("race")
+	for e in enemies:
+		e._on_player_move(start,goal)
