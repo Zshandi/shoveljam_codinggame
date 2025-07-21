@@ -46,6 +46,7 @@ func _ready():
 	%TabContainer.set_tab_title(0,"Editor")
 	add_syntax_highlighting()
 	%Editor.show()
+	
 
 func add_syntax_highlighting():
 	for x in [%Editor,%Variables, %Basics, %Movement, %Reacting, %About]:
@@ -91,8 +92,7 @@ func _on_go_pressed() -> void:
 	is_executing = false
 	%Editor.set_line_as_executing(last_executed_line, false)
 	if kill_execution:
-		await get_tree().create_timer(0.01).timeout
-		execution_killed.emit()
+		execution_killed.emit.call_deferred()
 		return
 	
 	if context.dead:
@@ -124,6 +124,8 @@ func reset_state():
 	%Editor.is_editable = true
 	%Reset.hide()
 	%GO.show()
+	if context != null:
+		context.reset_player()
 	has_error = false
 
 func set_output(line_num:int, output:Variant):
@@ -321,7 +323,7 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 				set_executing_line(line_num_prev)
 				set_output(line_num_prev, "loop " + str(i+1) + " out of " + count_result.value_str)
 				if i != 0:
-					await get_tree().create_timer(Options.min_code_exec_time_ms / 1000.0).timeout
+					await wait_for_ticks(Time.get_ticks_msec()+Options.min_code_exec_time_ms)
 				# This skip is just to clear the output
 				skip_block(line_num_prev + 1, expected_indent_level, true)
 				
@@ -333,7 +335,7 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 						break
 					# Let continue fall out so we wait either way
 				
-				await get_tree().create_timer(Options.min_code_exec_time_ms / 1000.0).timeout
+				await wait_for_ticks(Time.get_ticks_msec()+Options.min_code_exec_time_ms)
 			
 			# Need to get proper line_num
 			line_num = skip_block(line_num_prev + 1, expected_indent_level, false)
@@ -354,7 +356,7 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 			var has_looped := false
 			while true:
 				if has_looped:
-					await get_tree().create_timer(Options.min_code_exec_time_ms / 1000.0).timeout
+					await wait_for_ticks(Time.get_ticks_msec()+Options.min_code_exec_time_ms)
 				has_looped = true
 				
 				var condition_result = await execute_expression(condition, line_num_prev)
@@ -472,8 +474,12 @@ func replace_vars_with_dictionaries(expr:String) -> String:
 	return expr
 
 func wait_for_ticks(ticks_ms:int) -> void:
+	if kill_execution:
+		return
 	var ms_remaining := ticks_ms - Time.get_ticks_msec()
 	var seconds_remaining := ms_remaining / 1000.0
+	print(seconds_remaining)
+	print(Options.min_code_exec_time_ms)
 	%ExecutionTimer.start(seconds_remaining)
 	await %ExecutionTimer.timeout
 

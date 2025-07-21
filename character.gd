@@ -70,14 +70,19 @@ func move(direction:Direction) -> TileInfo:
 	return move_result
 	
 func goto_level(level:int):
-		level = clamp(level-1,0,9)
-		LevelManager.load_level(level)
+	level = clamp(level-1,0,9)
+	LevelManager.load_level(level)
 	
 func grab() -> String:
 	return "not implemented... yet!"
 	
 func use(item) -> String:
 	return "not implemented... yet!"
+	
+func reset_player():
+	dead = false
+	%AnimatedSprite2D.play("blink")
+	%AnimTimer.start(randf_range(5,10))
 	
 func trigger_death():
 	emit_signal("player_death")
@@ -94,3 +99,6 @@ func _on_timer_timeout():
 	if not dead:
 		%AnimatedSprite2D.play("blink")
 		%AnimTimer.start(randf_range(5,10))
+		
+func _exit_tree():
+	%MoveTimer.timeout.emit()
