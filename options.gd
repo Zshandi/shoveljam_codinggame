@@ -36,9 +36,9 @@ var min_code_exec_time_ms:int = min_code_exec_time_ms_default
 
 var code_execution_speed:int:
 	get:
-		return clampi(min_code_exec_time_ms / min_code_exec_time_ms_default, 0, 2)
+		return 2 - clampi(min_code_exec_time_ms / min_code_exec_time_ms_default, 0, 2)
 	set(value):
-		min_code_exec_time_ms = min_code_exec_time_ms_default * clamp(value, 0, 2)
+		min_code_exec_time_ms = min_code_exec_time_ms_default * (2 - clamp(value, 0, 2))
 
 func save_settings() -> void:
 	var save_dict := {}

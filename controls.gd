@@ -5,8 +5,6 @@ var context:Node = null
 
 var expression = Expression.new()
 
-const execution_min_time_ms := 650
-
 const KEYWORD_COLOUR = Color(0xff7085ff)
 const CONTROL_FLOW_KEYWORD_COLOUR = Color(0xff8cccff)
 const MEMBER_KEYWORD_COLOUR = Color(0xbce0ffff)
@@ -323,7 +321,7 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 				set_executing_line(line_num_prev)
 				set_output(line_num_prev, "loop " + str(i+1) + " out of " + count_result.value_str)
 				if i != 0:
-					await get_tree().create_timer(execution_min_time_ms / 1000.0).timeout
+					await get_tree().create_timer(Options.min_code_exec_time_ms / 1000.0).timeout
 				# This skip is just to clear the output
 				skip_block(line_num_prev + 1, expected_indent_level, true)
 				
@@ -335,7 +333,7 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 						break
 					# Let continue fall out so we wait either way
 				
-				await get_tree().create_timer(execution_min_time_ms / 1000.0).timeout
+				await get_tree().create_timer(Options.min_code_exec_time_ms / 1000.0).timeout
 			
 			# Need to get proper line_num
 			line_num = skip_block(line_num_prev + 1, expected_indent_level, false)
@@ -356,7 +354,7 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 			var has_looped := false
 			while true:
 				if has_looped:
-					await get_tree().create_timer(execution_min_time_ms / 1000.0).timeout
+					await get_tree().create_timer(Options.min_code_exec_time_ms / 1000.0).timeout
 				has_looped = true
 				
 				var condition_result = await execute_expression(condition, line_num_prev)
@@ -489,7 +487,7 @@ func execute_expression(expr:String, line_num:int) -> ExecutionResult:
 	
 	set_executing_line(line_num)
 	
-	var end_ticks = Time.get_ticks_msec() + execution_min_time_ms
+	var end_ticks = Time.get_ticks_msec() + Options.min_code_exec_time_ms
 	expr = replace_vars_with_dictionaries(expr)
 	
 	var error = expression.parse(expr, ["DisplayServer", "TileInfo"])

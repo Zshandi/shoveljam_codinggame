@@ -297,7 +297,6 @@ repeat 5:
 	# This moves 5 spaces to the right
 
 # There is another kind of loop called while, but that has it's own tab later"
-scroll_vertical = 8.0
 minimap_draw = true
 syntax_highlighter = SubResource("CodeHighlighter_hiucn")
 gutters_draw_breakpoints_gutter = true
@@ -305,7 +304,6 @@ gutters_draw_bookmarks = true
 gutters_draw_executing_lines = true
 gutters_draw_line_numbers = true
 gutters_draw_fold_gutter = true
-delimiter_strings = Array[String](["\" \"", "' '"])
 indent_use_spaces = true
 auto_brace_completion_enabled = true
 auto_brace_completion_highlight_matching = true
