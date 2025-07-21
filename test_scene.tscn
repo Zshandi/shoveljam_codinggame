@@ -110,7 +110,6 @@ metadata/_tab_index = 0
 
 [node name="Editor" type="CodeEdit" parent="Controls/VSplitContainer/ControlsRegion/TabContainer/EditorContainer" groups=["Editor"]]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.803922, 0.807843, 0.823529, 1)
@@ -383,6 +382,24 @@ size_flags_horizontal = 3
 button_pressed = true
 expand_icon = true
 
+[node name="ExecutionSpeed" type="HBoxContainer" parent="Controls/VSplitContainer/ControlsRegion/TabContainer/Options/OptionsContainer"]
+layout_mode = 2
+theme_override_constants/separation = 50
+
+[node name="ExecutionSpeedLabel" type="Label" parent="Controls/VSplitContainer/ControlsRegion/TabContainer/Options/OptionsContainer/ExecutionSpeed"]
+layout_mode = 2
+text = "Code Execution Speed"
+
+[node name="ExecutionSpeedSlider" type="HSlider" parent="Controls/VSplitContainer/ControlsRegion/TabContainer/Options/OptionsContainer/ExecutionSpeed"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 2.0
+value = 1.0
+rounded = true
+tick_count = 3
+ticks_on_borders = true
+
 [node name="FullScreen" type="HBoxContainer" parent="Controls/VSplitContainer/ControlsRegion/TabContainer/Options/OptionsContainer"]
 layout_mode = 2
 theme_override_constants/separation = 50
@@ -400,7 +417,7 @@ expand_icon = true
 
 [node name="Spacer" type="MarginContainer" parent="Controls/VSplitContainer/ControlsRegion/TabContainer/Options/OptionsContainer"]
 layout_mode = 2
-theme_override_constants/margin_top = 30
+theme_override_constants/margin_top = 10
 
 [node name="QuitButton" type="Button" parent="Controls/VSplitContainer/ControlsRegion/TabContainer/Options/OptionsContainer"]
 layout_mode = 2
@@ -471,5 +488,6 @@ bus = &"Sound"
 [connection signal="changed" from="Controls/VSplitContainer/ControlsRegion/TabContainer/Options/OptionsContainer/SoundVolume/SoundVolumeSlider" to="Controls/VSplitContainer/ControlsRegion/TabContainer/Options" method="_on_sound_volume_slider_changed"]
 [connection signal="value_changed" from="Controls/VSplitContainer/ControlsRegion/TabContainer/Options/OptionsContainer/SoundVolume/SoundVolumeSlider" to="Controls/VSplitContainer/ControlsRegion/TabContainer/Options" method="_on_sound_volume_slider_value_changed"]
 [connection signal="toggled" from="Controls/VSplitContainer/ControlsRegion/TabContainer/Options/OptionsContainer/TypingSound/TypingSoundButton" to="Controls/VSplitContainer/ControlsRegion/TabContainer/Options" method="_on_typing_sound_button_toggled"]
+[connection signal="value_changed" from="Controls/VSplitContainer/ControlsRegion/TabContainer/Options/OptionsContainer/ExecutionSpeed/ExecutionSpeedSlider" to="Controls/VSplitContainer/ControlsRegion/TabContainer/Options" method="_on_execution_speed_slider_value_changed"]
 [connection signal="toggled" from="Controls/VSplitContainer/ControlsRegion/TabContainer/Options/OptionsContainer/FullScreen/FullScreenButton" to="Controls/VSplitContainer/ControlsRegion/TabContainer/Options" method="_on_full_screen_button_toggled"]
 [connection signal="pressed" from="Controls/VSplitContainer/ControlsRegion/TabContainer/Options/OptionsContainer/QuitButton" to="Controls/VSplitContainer/ControlsRegion/TabContainer/Options" method="_on_quit_button_pressed"]
