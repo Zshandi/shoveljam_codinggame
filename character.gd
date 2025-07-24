@@ -41,7 +41,27 @@ func _get_move_vector(direction:Direction) -> Vector2:
 	return dir_vector*TILE_WIDTH
 
 func check_move(direction:Direction) -> TileInfo:
-	var move_vector := _get_move_vector(direction) * 0.999
+	var move_vector = _get_move_vector(direction)
+	var new_position:Vector2 = global_position + move_vector
+	
+	var space_state = get_world_2d().direct_space_state
+	var query_parameters := PhysicsPointQueryParameters2D.new()
+	query_parameters.position = new_position
+	query_parameters.collide_with_areas = true
+	query_parameters.exclude = [self] # Exclude self from collisions
+	
+	print_debug("new_position: ", new_position)
+	print_debug("floppy: ", get_node("../FloppyDisk").global_position)
+	
+	var result = space_state.intersect_point(query_parameters)
+	print_debug("result: ", result)
+	for intersection in result:
+		var what = intersection.collider
+		print_debug("Collider: ", what)
+		if what.has_method("get_tile_info"):
+			var tile_info =  what.get_tile_info()
+			if tile_info is TileInfo: return tile_info
+	
 	var move_result:KinematicCollision2D = null
 	if test_move(transform, move_vector, move_result):
 		if move_result != null:
@@ -55,6 +75,7 @@ func check_move(direction:Direction) -> TileInfo:
 	return TileInfo.new(TileInfo.TileType.EMPTY)
 
 func move(direction:Direction) -> TileInfo:
+	get_tree().root.get_child(0)
 	distance_travelled = 0.0
 	goal_distance = TILE_WIDTH
 	var move_vector = _get_move_vector(direction)

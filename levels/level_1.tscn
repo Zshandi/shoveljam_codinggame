@@ -46,3 +46,5 @@ script = ExtResource("3_ihfcg")
 tile_map_data = PackedByteArray("AAACAAAAAgAAAAAABAD+/wAAAgAAAAAAAgA=")
 tile_set = SubResource("TileSet_j7kpp")
 script = ExtResource("3_ihfcg")
+
+[connection signal="body_entered" from="objects/FloppyDisk" to="objects/FloppyDisk" method="_on_body_entered"]
