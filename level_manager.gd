@@ -85,3 +85,4 @@ func update_enemies(start,goal):
 	var enemies = get_tree().get_nodes_in_group("race")
 	for e in enemies:
 		e._on_player_move(start,goal)
+		
