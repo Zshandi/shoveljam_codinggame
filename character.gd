@@ -54,23 +54,15 @@ func check_move(direction:Direction) -> TileInfo:
 	print_debug("floppy: ", get_node("../FloppyDisk").global_position)
 	
 	var result = space_state.intersect_point(query_parameters)
-	print_debug("result: ", result)
 	for intersection in result:
 		var what = intersection.collider
-		print_debug("Collider: ", what)
 		if what.has_method("get_tile_info"):
 			var tile_info =  what.get_tile_info()
 			if tile_info is TileInfo: return tile_info
+		else:
+			# No tile info then it's a wall
+			return TileInfo.new(TileInfo.TileType.WALL)
 	
-	var move_result:KinematicCollision2D = null
-	if test_move(transform, move_vector, move_result):
-		if move_result != null:
-			var what = move_result.get_collider()
-			if what.has_method("get_tile_info"):
-				var tile_info =  what.get_tile_info()
-				if tile_info is TileInfo: return tile_info
-		# Does not have TileInfo, then must be a wall
-		return TileInfo.new(TileInfo.TileType.WALL)
 	# No collision then it's empty
 	return TileInfo.new(TileInfo.TileType.EMPTY)
 
