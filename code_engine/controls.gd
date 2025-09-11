@@ -49,7 +49,7 @@ func _ready():
 	
 
 func add_syntax_highlighting():
-	for x in [%Editor,%Variables, %Basics, %Movement, %Reacting, %About]:
+	for x in [%Editor, %Variables, %Basics, %Movement, %Reacting, %About]:
 		x.syntax_highlighter.function_color = Color(0x57b3ffff)
 		x.syntax_highlighter.number_color = Color(0xa1ffe0ff)
 		x.syntax_highlighter.member_variable_color = Color(0xbce0ffff)
@@ -121,7 +121,6 @@ func reset_state():
 	await stop_execution()
 	reset_output()
 	%Editor.show()
-	%Editor.is_editable = true
 	%Reset.hide()
 	%GO.show()
 	if context != null:
@@ -151,7 +150,13 @@ func output_result(line_num:int, result:ExecutionResult) -> void:
 		has_error = true
 
 func reset_output():
-	%Editor.text = starting_code
+	var line_num = 0
+	while line_num < %Editor.get_line_count():
+		set_output(line_num, null)
+		if %Editor.get_line(line_num).begins_with("!!ERROR") or %Editor.get_line(line_num).begins_with("** "):
+			%Editor.remove_line_at(line_num)
+		else:
+			line_num += 1
 
 func skip_block(line_num:int, until_indent_level:int, clear_output := true) -> int:
 	while  line_num < %Editor.get_line_count():
