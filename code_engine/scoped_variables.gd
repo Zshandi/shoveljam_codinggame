@@ -37,7 +37,7 @@ func can_assign(name:String, value:Variant) -> bool:
 	return has_var(name)
 
 func assign(name:String, value:Variant) -> bool:
-	if not has_var(name): return false
+	if not can_assign(name, value): return false
 	for i in range(-1, -scope_stack.size()-1, -1):
 		var scope = scope_stack[i]
 		if scope.has(name):
@@ -54,6 +54,6 @@ func decrease_scope() -> void:
 	if scope_stack.size() > 1:
 		scope_stack.pop_back()
 	else:
-		assert(false, "decreased to 0 scope, which probably shouldn't happen")
+		print_debug("decreased to 0 scope, which probably shouldn't happen")
 		scope_stack = [{}]
 	evaluate_current_scope()

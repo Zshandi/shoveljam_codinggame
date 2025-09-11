@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cqkntibgils0x"]
+
+[ext_resource type="Script" uid="uid://bwyf0bsjsm1o4" path="res://unit_tests/test_scoped_variables.gd" id="1_5m3wa"]
+
+[node name="TestScopedVariables" type="Node"]
+script = ExtResource("1_5m3wa")
