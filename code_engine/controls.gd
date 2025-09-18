@@ -1,9 +1,11 @@
 extends CanvasLayer
 
 @export
-var context:Node = null
+var context: Node = null
 
 var expression = Expression.new()
+
+var variables := ScopedVariables.new()
 
 const KEYWORD_COLOUR = Color(0xff7085ff)
 const CONTROL_FLOW_KEYWORD_COLOUR = Color(0xff8cccff)
@@ -43,27 +45,27 @@ const control_flow_keywords = [
 
 func _ready():
 	%Editor.grab_focus()
-	%TabContainer.set_tab_title(0,"Editor")
+	%TabContainer.set_tab_title(0, "Editor")
 	add_syntax_highlighting()
 	%Editor.show()
 	
 
 func add_syntax_highlighting():
-	for x in [%Editor,%Variables, %Basics, %Movement, %Reacting, %About]:
+	for x in [%Editor, %Variables, %Basics, %Movement, %Reacting, %About]:
 		x.syntax_highlighter.function_color = Color(0x57b3ffff)
 		x.syntax_highlighter.number_color = Color(0xa1ffe0ff)
 		x.syntax_highlighter.member_variable_color = Color(0xbce0ffff)
 		x.syntax_highlighter.symbol_color = Color(0xabc9ffff)
 		
-		x.syntax_highlighter.add_color_region("\"","\"",Color(0xffeda1ff),false)
-		x.syntax_highlighter.add_color_region("#","",Color(0xcdcfd280),true)
-		x.syntax_highlighter.add_color_region("!!","",Color(0xff786bff),true)
-		x.syntax_highlighter.add_color_region("**","",Color(0x42ffc2ff),true)
+		x.syntax_highlighter.add_color_region("\"", "\"", Color(0xffeda1ff), false)
+		x.syntax_highlighter.add_color_region("#", "", Color(0xcdcfd280), true)
+		x.syntax_highlighter.add_color_region("!!", "", Color(0xff786bff), true)
+		x.syntax_highlighter.add_color_region("**", "", Color(0x42ffc2ff), true)
 		
 		for k in keywords:
-			x.syntax_highlighter.add_keyword_color(k,KEYWORD_COLOUR)
+			x.syntax_highlighter.add_keyword_color(k, KEYWORD_COLOUR)
 		for k in control_flow_keywords:
-			x.syntax_highlighter.add_keyword_color(k,CONTROL_FLOW_KEYWORD_COLOUR)
+			x.syntax_highlighter.add_keyword_color(k, CONTROL_FLOW_KEYWORD_COLOUR)
 
 func _input(event: InputEvent) -> void:
 	if event.is_action("Go_Keyboard") and event.is_pressed():
@@ -76,12 +78,13 @@ func _input(event: InputEvent) -> void:
 
 var is_executing := false
 var kill_execution := false
-var starting_code : String
+var starting_code: String
 var has_error := false
 signal execution_killed
 
 func _on_go_pressed() -> void:
 	has_error = false
+	variables = ScopedVariables.new()
 	%Editor.show()
 	%Reset.show()
 	%GO.hide()
@@ -90,6 +93,7 @@ func _on_go_pressed() -> void:
 	is_executing = true
 	await execute_block(0, 0)
 	is_executing = false
+	%Editor.is_editable = true
 	%Editor.set_line_as_executing(last_executed_line, false)
 	if kill_execution:
 		execution_killed.emit.call_deferred()
@@ -121,17 +125,16 @@ func reset_state():
 	await stop_execution()
 	reset_output()
 	%Editor.show()
-	%Editor.is_editable = true
 	%Reset.hide()
 	%GO.show()
 	if context != null:
 		context.reset_player()
 	has_error = false
 
-func set_output(line_num:int, output:Variant):
+func set_output(line_num: int, output: Variant):
 	if line_num >= %Editor.get_line_count():
 		print_debug("line out of index", line_num, ": ", output)
-	var line:String = %Editor.get_line(line_num)
+	var line: String = %Editor.get_line(line_num)
 	const output_prefix = " # result: "
 	line = line.split(output_prefix, true, 1)[0]
 	if output != null:
@@ -140,7 +143,7 @@ func set_output(line_num:int, output:Variant):
 	%Editor.set_line_text(line_num, line)
 	%Editor.set_line_as_center_visible(line_num)
 
-func output_result(line_num:int, result:ExecutionResult) -> void:
+func output_result(line_num: int, result: ExecutionResult) -> void:
 	if result.status == ResultStatus.Completed:
 		set_output(line_num, result.value_str)
 		%beep_sfx.play()
@@ -151,14 +154,20 @@ func output_result(line_num:int, result:ExecutionResult) -> void:
 		has_error = true
 
 func reset_output():
-	%Editor.text = starting_code
+	var line_num = 0
+	while line_num < %Editor.get_line_count():
+		set_output(line_num, null)
+		if %Editor.get_line(line_num).begins_with("!!ERROR") or %Editor.get_line(line_num).begins_with("** "):
+			%Editor.remove_line_at(line_num)
+		else:
+			line_num += 1
 
-func skip_block(line_num:int, until_indent_level:int, clear_output := true) -> int:
-	while  line_num < %Editor.get_line_count():
+func skip_block(line_num: int, until_indent_level: int, clear_output := true) -> int:
+	while line_num < %Editor.get_line_count():
 		var line = %Editor.get_line(line_num)
 		var current_indent = 0
 		for character in line:
-			if character == "\t": #TODO: Allow spaces
+			if character == "\t": # TODO: Allow spaces
 				current_indent = current_indent + 1
 			else:
 				break
@@ -174,8 +183,8 @@ func skip_block(line_num:int, until_indent_level:int, clear_output := true) -> i
 	return line_num
 
 # Note: line_num is typically int, but can also be LoopControl, and returns int or LoopControl
-func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = false) -> Variant:
-	
+func execute_block(line_num: Variant, expected_indent_level: int, is_loop: bool = false) -> Variant:
+	variables.increase_scope()
 	var was_if := false
 	var was_if_consumed := false
 	
@@ -189,7 +198,7 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 		# Get indentation
 		var current_indent = 0
 		for character in line:
-			if character == "\t": #TODO: Allow spaces
+			if character == "\t": # TODO: Allow spaces
 				current_indent = current_indent + 1
 			else:
 				break
@@ -232,7 +241,6 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 				if_regex_result = elif_regex_result
 		
 		if if_regex_result != null:
-			
 			was_if = true
 			if was_if_consumed:
 				line_num = skip_block(line_num + 1, expected_indent_level)
@@ -319,14 +327,13 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 			
 			var line_num_prev = line_num
 			for i in range(count_result.value):
-				
 				if context.dead or count_result.status == ResultStatus.Failed:
 					output_result(line_num, count_result)
 					return %Editor.get_line_count()
 				set_executing_line(line_num_prev)
-				set_output(line_num_prev, "loop " + str(i+1) + " out of " + count_result.value_str)
+				set_output(line_num_prev, "loop " + str(i + 1) + " out of " + count_result.value_str)
 				if i != 0:
-					await wait_for_ticks(Time.get_ticks_msec()+Options.min_code_exec_time_ms)
+					await wait_for_ticks(Time.get_ticks_msec() + Options.min_code_exec_time_ms)
 				# This skip is just to clear the output
 				skip_block(line_num_prev + 1, expected_indent_level, true)
 				
@@ -338,7 +345,7 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 						break
 					# Let continue fall out so we wait either way
 				
-				await wait_for_ticks(Time.get_ticks_msec()+Options.min_code_exec_time_ms)
+				await wait_for_ticks(Time.get_ticks_msec() + Options.min_code_exec_time_ms)
 			
 			# Need to get proper line_num
 			line_num = skip_block(line_num_prev + 1, expected_indent_level, false)
@@ -359,7 +366,7 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 			var has_looped := false
 			while true:
 				if has_looped:
-					await wait_for_ticks(Time.get_ticks_msec()+Options.min_code_exec_time_ms)
+					await wait_for_ticks(Time.get_ticks_msec() + Options.min_code_exec_time_ms)
 				has_looped = true
 				
 				var condition_result = await execute_expression(condition, line_num_prev)
@@ -400,12 +407,13 @@ func execute_block(line_num:Variant, expected_indent_level:int, is_loop:bool = f
 		
 		line_num += 1
 	
+	variables.decrease_scope()
+	
 	return line_num
 
-func execute_line(line:String, line_num:int) -> ExecutionResult:
-	
-	var variable_declair_regex = RegEx.new()
-	variable_declair_regex.compile("^var\\s([a-zA-Z_][a-zA-Z_0-9]*)$")
+func execute_line(line: String, line_num: int) -> ExecutionResult:
+	var variable_declare_regex = RegEx.new()
+	variable_declare_regex.compile("^var\\s([a-zA-Z_][a-zA-Z_0-9]*)$")
 	var variable_name_regex = RegEx.new()
 	variable_name_regex.compile("^[a-zA-Z_][a-zA-Z_0-9]*$")
 	
@@ -427,19 +435,23 @@ func execute_line(line:String, line_num:int) -> ExecutionResult:
 			var variable_value = sides[1].strip_edges()
 			var var_name = left_hand_side
 			
-			var var_regex_result = variable_declair_regex.search(left_hand_side)
+			var var_regex_result = variable_declare_regex.search(left_hand_side)
 			if var_regex_result != null:
 				var_name = var_regex_result.get_string(1)
-				%Editor.syntax_highlighter.add_member_keyword_color(var_name,MEMBER_KEYWORD_COLOUR)
+				%Editor.syntax_highlighter.add_member_keyword_color(var_name, MEMBER_KEYWORD_COLOUR)
 				if var_name in keywords or var_name in control_flow_keywords:
 					return ExecutionResult.new("cannot use %s as a variable name" % var_name, ResultStatus.Failed)
 				# commenting this out for now until we support scoping in loops
-				#if var_name in context.user_variables:
-					## This is to account for dictionary assignment also adding the value
-					#var correct_expression = "(use '" + var_name + " = " + variable_value + "' instead)"
-					#return ExecutionResult.new("re-defined variable: only need var once " + correct_expression, ResultStatus.Failed)
+				if not variables.can_declare(var_name):
+					# This is to account for dictionary assignment also adding the value
+					var correct_expression = "(use '" + var_name + " = " + variable_value + "' instead)"
+					return ExecutionResult.new("re-defined variable: only need var once " + correct_expression, ResultStatus.Failed)
+				
+				if not variables.declare(var_name):
+					return ExecutionResult.new("unknown error declaring variable", ResultStatus.Failed)
+				
 			elif variable_name_regex.search(left_hand_side) != null:
-				if !(var_name in context.user_variables):
+				if !(variables.has_var(var_name)):
 					# This is to account for dictionary assignment also adding the value
 					var correct_expression = "(use 'var " + line + "' instead)"
 					return ExecutionResult.new("assignment to undefined variable " + correct_expression, ResultStatus.Failed)
@@ -449,7 +461,8 @@ func execute_line(line:String, line_num:int) -> ExecutionResult:
 			var evaluated_value = await execute_expression(variable_value, line_num)
 			
 			if evaluated_value.status == ResultStatus.Completed:
-				context.user_variables[var_name] = evaluated_value.value
+				if not variables.assign(var_name, evaluated_value.value):
+					return ExecutionResult.new("Failed to assign variable", ResultStatus.Failed)
 				update_var_display()
 				return evaluated_value
 			else:
@@ -458,51 +471,44 @@ func execute_line(line:String, line_num:int) -> ExecutionResult:
 			return ExecutionResult.new("invalid assign", ResultStatus.Failed)
 	elif line.begins_with("var "):
 		var var_name = line.substr(4).strip_edges()
-		if var_name in context.user_variables:
-			# This is to account for dictionary assignment also adding the value
-			return ExecutionResult.new("re-define variable", ResultStatus.Failed)
-		context.user_variables[var_name] = null
+		if variables.has_var(var_name):
+			return ExecutionResult.new("re-define variable, only need to use var once", ResultStatus.Failed)
+		if not variables.declare(var_name):
+			return ExecutionResult.new("Unable to declare variable", ResultStatus.Failed)
 		return ExecutionResult.new("(variable defined with no value)", ResultStatus.Completed)
 	
 	print("final line: ", line)
 	return await execute_expression(line, line_num)
 
-func replace_vars_with_dictionaries(expr:String) -> String:
-	# TODO: There's a better way to do this...
-	for var_name in context.user_variables.keys():
-		var regex = RegEx.new()
-		regex.compile("\\b" + var_name + "\\b")
-		expr = regex.sub(expr, "user_variables[\""+var_name+"\"]", true)
-	
-	return expr
-
-func wait_for_ticks(ticks_ms:int) -> void:
+func wait_for_ticks(ticks_ms: int) -> void:
 	if kill_execution:
 		return
 	var ms_remaining := ticks_ms - Time.get_ticks_msec()
 	var seconds_remaining := ms_remaining / 1000.0
-	print("starting timer with: ",seconds_remaining)
-	%ExecutionTimer.wait_time = max(seconds_remaining,0.001)
+	print("starting timer with: ", seconds_remaining)
+	%ExecutionTimer.wait_time = max(seconds_remaining, 0.001)
 	%ExecutionTimer.call_deferred("start")
 	await %ExecutionTimer.timeout
 
 var last_executed_line := 0
-func set_executing_line(line_num:int):
+func set_executing_line(line_num: int):
 	%Editor.set_line_as_executing(last_executed_line, false)
 	%Editor.set_line_as_executing(line_num, true)
 	last_executed_line = line_num
 
-func execute_expression(expr:String, line_num:int) -> ExecutionResult:
-	
+func execute_expression(expr: String, line_num: int) -> ExecutionResult:
 	set_executing_line(line_num)
 	
 	var end_ticks = Time.get_ticks_msec() + Options.min_code_exec_time_ms
-	expr = replace_vars_with_dictionaries(expr)
 	
-	var error = expression.parse(expr, ["DisplayServer", "TileInfo"])
+	var input_names = ["DisplayServer", "TileInfo"]
+	var input_values = [DisplayServer, TileInfo]
+	input_names.append_array(variables.current_scope.keys())
+	input_values.append_array(variables.current_scope.values())
+	var error = expression.parse(expr, input_names)
 	if error != OK:
 		return ExecutionResult.new("Parse error: " + expression.get_error_text(), ResultStatus.Failed)
-	var result = await expression.execute([DisplayServer, TileInfo], context)
+	var result = await expression.execute(input_values, context)
 	if kill_execution:
 		return ExecutionResult.new("Execution stopped", ResultStatus.Failed)
 	if not expression.has_execute_failed():
@@ -518,11 +524,11 @@ func execute_expression(expr:String, line_num:int) -> ExecutionResult:
 	
 func update_var_display() -> void:
 	%Variables.text = ""
-	for variable in context.user_variables:
+	for variable in variables.current_scope:
 		if variable is String:
-			%Variables.add_text("%s: \"%s\"\n" % [variable, str(context.user_variables[variable])])
+			%Variables.add_text("%s: \"%s\"\n" % [variable, str(variables.current_scope[variable])])
 		else:
-			%Variables.add_text("%s: %s\n" % [variable, str(context.user_variables[variable])])
+			%Variables.add_text("%s: %s\n" % [variable, str(variables.current_scope[variable])])
 
 enum ResultStatus {
 	Completed,
@@ -537,7 +543,7 @@ class LoopControl:
 class ExecutionResult:
 	extends RefCounted
 	
-	func _init(value_p:Variant, status_p:ResultStatus = ResultStatus.Completed) -> void:
+	func _init(value_p: Variant, status_p: ResultStatus = ResultStatus.Completed) -> void:
 		status = status_p
 		value = value_p
 		if value == null:
@@ -550,6 +556,6 @@ class ExecutionResult:
 		else:
 			value_str = str(value)
 	
-	var status:ResultStatus
-	var value:Variant
-	var value_str:String
+	var status: ResultStatus
+	var value: Variant
+	var value_str: String

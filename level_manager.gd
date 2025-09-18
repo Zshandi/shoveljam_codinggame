@@ -57,6 +57,7 @@ func _ready() -> void:
 	editor = get_tree().get_first_node_in_group(&"Editor")
 	controls = get_tree().get_first_node_in_group(&"Controls")
 	level_node = get_tree().get_first_node_in_group(&"level")
+	if level_node == null: return
 	load_level(0)
 
 var current_level:int = -1
@@ -68,6 +69,7 @@ func load_current():
 	load_level(current_level)
 	
 func load_level(level_index:int):
+	if level_node == null: return
 	for child in level_node.get_children():
 		child.queue_free()
 		
@@ -82,6 +84,7 @@ func load_level(level_index:int):
 	level_node.call_deferred("add_child",level)
 	
 func update_enemies(start,goal):
+	if level_node == null: return
 	var enemies = get_tree().get_nodes_in_group("race")
 	for e in enemies:
 		e._on_player_move(start,goal)
