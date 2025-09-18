@@ -21,8 +21,8 @@ var pre_quit_regex := RegEx.new()
 var pre_global_func_regex := RegEx.new()
 
 func _ready() -> void:
-	super()
-	is_editable = true
+	super ()
+	is_text_editable = true
 	context_menu_enabled = true
 	code_completion_prefixes = [".", "(", "= "]
 	
@@ -65,12 +65,12 @@ func add_code_completions():
 	
 	regex_match = line_before_regex.search_all(text_complete)
 	if len(regex_match) != 0:
-		var line:String = regex_match[-1].get_string(1)
+		var line: String = regex_match[-1].get_string(1)
 		if line.contains("#"):
 			# No auto-complete for comments
 			return
 		var quote_regex = RegEx.new()
-		quote_regex.compile("[^\\]\"")
+		quote_regex.compile("[^\\\\]\"")
 		var quote_matches = quote_regex.search_all(line)
 		if len(quote_matches) % 2 == 1:
 			# No auto-complete inside string quotes
@@ -125,7 +125,7 @@ func add_code_completions():
 	else:
 		add_enum_values(text_before_complete, "TileInfo.TileType", TileInfo.TileType)
 
-func add_enum_values(value:String, enum_name:String, enum_type:Dictionary):
+func add_enum_values(value: String, enum_name: String, enum_type: Dictionary):
 	for enum_key in enum_type.keys():
 		var full_name = enum_name + "." + enum_key
 		if full_name.begins_with(value):
@@ -133,9 +133,8 @@ func add_enum_values(value:String, enum_name:String, enum_type:Dictionary):
 	return false
 
 func _on_text_changed() -> void:
-	super()
-	if is_editable:
+	super ()
+	if is_text_editable:
 		if Options.typing_sound_enabled:
 			%type1_sfx.play()
 		_request_code_completion(true)
-		

@@ -143,7 +143,6 @@ indent_automatic = true
 auto_brace_completion_enabled = true
 auto_brace_completion_highlight_matching = true
 script = ExtResource("6_7cbxl")
-is_editable = true
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Controls/VSplitContainer/ControlsRegion/TabContainer/EditorContainer"]
 layout_mode = 2
