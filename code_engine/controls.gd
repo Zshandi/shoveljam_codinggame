@@ -88,12 +88,12 @@ func _on_go_pressed() -> void:
 	%Editor.show()
 	%Reset.show()
 	%GO.hide()
-	%Editor.is_editable = false
+	%Editor.is_text_editable = false
 	starting_code = %Editor.text
 	is_executing = true
 	await execute_block(0, 0)
 	is_executing = false
-	%Editor.is_editable = true
+	%Editor.is_text_editable = true
 	%Editor.set_line_as_executing(last_executed_line, false)
 	if kill_execution:
 		execution_killed.emit.call_deferred()
@@ -185,6 +185,7 @@ func skip_block(line_num: int, until_indent_level: int, clear_output := true) ->
 # Note: line_num is typically int, but can also be LoopControl, and returns int or LoopControl
 func execute_block(line_num: Variant, expected_indent_level: int, is_loop: bool = false) -> Variant:
 	variables.increase_scope()
+	var result: ExecutionResult = null
 	var was_if := false
 	var was_if_consumed := false
 	
@@ -205,7 +206,7 @@ func execute_block(line_num: Variant, expected_indent_level: int, is_loop: bool 
 		
 		# Check indentation
 		if current_indent > expected_indent_level:
-			var result = ExecutionResult.new("Unexpected indentation", ResultStatus.Failed)
+			result = ExecutionResult.new("Unexpected indentation", ResultStatus.Failed)
 			output_result(line_num, result)
 			return %Editor.get_line_count()
 		elif current_indent < expected_indent_level:
@@ -234,7 +235,7 @@ func execute_block(line_num: Variant, expected_indent_level: int, is_loop: bool 
 			elif_regex.compile("^elif[\\s\\(](.*):")
 			var elif_regex_result = elif_regex.search(stripped_line)
 			if elif_regex_result != null and not was_if:
-				var result = ExecutionResult.new("Unexpected elif (needs an if)", ResultStatus.Failed)
+				result = ExecutionResult.new("Unexpected elif (needs an if)", ResultStatus.Failed)
 				output_result(line_num, result)
 				return %Editor.get_line_count()
 			else:
@@ -270,7 +271,7 @@ func execute_block(line_num: Variant, expected_indent_level: int, is_loop: bool 
 		var else_regex_result := else_regex.search(stripped_line)
 		if else_regex_result != null:
 			if not was_if:
-				var result = ExecutionResult.new("Unexpected else (needs an if)", ResultStatus.Failed)
+				result = ExecutionResult.new("Unexpected else (needs an if)", ResultStatus.Failed)
 				output_result(line_num, result)
 				return %Editor.get_line_count()
 			
@@ -293,7 +294,7 @@ func execute_block(line_num: Variant, expected_indent_level: int, is_loop: bool 
 			if is_loop:
 				return LoopControl.CONTINUE
 			else:
-				var result = ExecutionResult.new("continue can only be used in a loop (repeat or while)", ResultStatus.Failed)
+				result = ExecutionResult.new("continue can only be used in a loop (repeat or while)", ResultStatus.Failed)
 				output_result(line_num, result)
 				return %Editor.get_line_count()
 		
@@ -301,7 +302,7 @@ func execute_block(line_num: Variant, expected_indent_level: int, is_loop: bool 
 			if is_loop:
 				return LoopControl.BREAK
 			else:
-				var result = ExecutionResult.new("break can only be used in a loop (repeat or while)", ResultStatus.Failed)
+				result = ExecutionResult.new("break can only be used in a loop (repeat or while)", ResultStatus.Failed)
 				output_result(line_num, result)
 				return %Editor.get_line_count()
 		
@@ -321,7 +322,7 @@ func execute_block(line_num: Variant, expected_indent_level: int, is_loop: bool 
 				return %Editor.get_line_count()
 			
 			if not (count_result.value is int):
-				var result = ExecutionResult.new("repeat count must be a number, but instead got: " + count_result.value_str, ResultStatus.Failed)
+				result = ExecutionResult.new("repeat count must be a number, but instead got: " + count_result.value_str, ResultStatus.Failed)
 				output_result(line_num, result)
 				return %Editor.get_line_count()
 			
@@ -399,7 +400,7 @@ func execute_block(line_num: Variant, expected_indent_level: int, is_loop: bool 
 		
 		## Finally, just evaluate the single line
 		
-		var result := await execute_line(stripped_line, line_num)
+		result = await execute_line(stripped_line, line_num)
 		output_result(line_num, result)
 		
 		if context.dead or result.status == ResultStatus.Failed:
@@ -421,15 +422,18 @@ func execute_line(line: String, line_num: int) -> ExecutionResult:
 	equals_regex.compile("[^=!><]=[^=!><]")
 	
 	if equals_regex.search(line) != null:
+		var sides
+
 		if not line.begins_with("var"):
 			const operators = ["+", "-", "*", "/", "%"]
 			for op in operators:
 				var op_eq = op + "="
 				if line.contains(op_eq):
-					var sides = line.split(op_eq, true, 1)
+					sides = line.split(op_eq, true, 1)
 					var var_name = sides[0].strip_edges()
 					line = line.replace(op_eq, "= " + var_name + " " + op)
-		var sides = line.split("=", true, 1)
+		
+		sides = line.split("=", true, 1)
 		if len(sides) >= 2:
 			var left_hand_side = sides[0].strip_edges()
 			var variable_value = sides[1].strip_edges()

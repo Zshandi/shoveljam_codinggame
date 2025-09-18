@@ -10,17 +10,16 @@ var max_zoom = 8.0
 var zoom_level = 2.0
 
 func _ready():
-	zoom = Vector2(zoom_level,zoom_level)
+	zoom = Vector2(zoom_level, zoom_level)
 
-func _process(delta):
-	
+func _process(_delta):
 	# drag the camera
 	if not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		tracking = false
 	
 	if tracking:
 		var screen_scale = DisplayServer.screen_get_scale()
-		global_position = initial_camera_position + (initial_mouse_position - Vector2(DisplayServer.mouse_get_position()))*(1.0/(zoom_level+screen_scale))
+		global_position = initial_camera_position + (initial_mouse_position - Vector2(DisplayServer.mouse_get_position())) * (1.0 / (zoom_level + screen_scale))
 		
 
 func _on_level_region_mouse_pressed() -> void:
@@ -32,12 +31,12 @@ func _on_level_region_mouse_released() -> void:
 	tracking = false
 
 func _on_level_region_mouse_wheel_down() -> void:
-	zoom_level = clamp(zoom_level*0.9,min_zoom,max_zoom)
-	zoom = Vector2(zoom_level,zoom_level)
+	zoom_level = clamp(zoom_level * 0.9, min_zoom, max_zoom)
+	zoom = Vector2(zoom_level, zoom_level)
 
 func _on_level_region_mouse_wheel_up() -> void:
-	zoom_level = clamp(zoom_level*1.1,min_zoom,max_zoom)
-	zoom = Vector2(zoom_level,zoom_level)
+	zoom_level = clamp(zoom_level * 1.1, min_zoom, max_zoom)
+	zoom = Vector2(zoom_level, zoom_level)
 
 
 func _on_find_player_pressed():

@@ -1,12 +1,12 @@
 extends RefCounted
 class_name ScopedVariables
 
-var scope_stack:Array[Dictionary] = [{}]
+var scope_stack: Array[Dictionary] = [ {}]
 
-var top_scope:Dictionary:
-	get: return scope_stack[-1] if scope_stack.size() > 0 else null
+var top_scope: Dictionary:
+	get: return scope_stack[-1] if scope_stack.size() > 0 else {}
 
-var current_scope:Dictionary = {}
+var current_scope: Dictionary = {}
 
 func evaluate_current_scope():
 	current_scope = {}
@@ -14,11 +14,11 @@ func evaluate_current_scope():
 		for key in scope.keys():
 			current_scope[key] = scope[key]
 
-func can_declare(name:String) -> bool:
+func can_declare(name: String) -> bool:
 	# Should include check with warning if shadowing variables in outer scope
 	return not top_scope.has(name)
 
-func declare(name:String) -> bool:
+func declare(name: String) -> bool:
 	if can_declare(name):
 		top_scope[name] = null
 		current_scope[name] = null
@@ -26,19 +26,19 @@ func declare(name:String) -> bool:
 	else:
 		return false
 
-func has_var(name:String) -> bool:
+func has_var(name: String) -> bool:
 	return current_scope.has(name)
 
-func get_var(name:String) -> Variant:
+func get_var(name: String) -> Variant:
 	return current_scope[name] if has_var(name) else null
 
-func can_assign(name:String, value:Variant) -> bool:
+func can_assign(name: String) -> bool:
 	# May add to this to include check if var is const
 	return has_var(name)
 
-func assign(name:String, value:Variant) -> bool:
-	if not can_assign(name, value): return false
-	for i in range(-1, -scope_stack.size()-1, -1):
+func assign(name: String, value: Variant) -> bool:
+	if not can_assign(name): return false
+	for i in range(-1, -scope_stack.size() - 1, -1):
 		var scope = scope_stack[i]
 		if scope.has(name):
 			scope[name] = value
@@ -55,5 +55,5 @@ func decrease_scope() -> void:
 		scope_stack.pop_back()
 	else:
 		print_debug("decreased to 0 scope, which probably shouldn't happen")
-		scope_stack = [{}]
+		scope_stack = [ {}]
 	evaluate_current_scope()

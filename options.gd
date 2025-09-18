@@ -1,6 +1,6 @@
 extends Node
 
-var music_volume:float:
+var music_volume: float:
 	get:
 		var index = AudioServer.get_bus_index(&"Music")
 		return db_to_linear(AudioServer.get_bus_volume_db(index))
@@ -8,7 +8,7 @@ var music_volume:float:
 		var index = AudioServer.get_bus_index(&"Music")
 		AudioServer.set_bus_volume_db(index, linear_to_db(value))
 
-var sound_volume:float:
+var sound_volume: float:
 	get:
 		var index = AudioServer.get_bus_index(&"Sound")
 		return db_to_linear(AudioServer.get_bus_volume_db(index))
@@ -18,7 +18,7 @@ var sound_volume:float:
 
 var last_windowed_mode := DisplayServer.WINDOW_MODE_WINDOWED
 
-var is_full_screen:bool:
+var is_full_screen: bool:
 	get:
 		return DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
 	set(value):
@@ -29,13 +29,14 @@ var is_full_screen:bool:
 		else:
 			DisplayServer.window_set_mode(last_windowed_mode)
 
-var typing_sound_enabled:bool = true
+var typing_sound_enabled: bool = true
 
 const min_code_exec_time_ms_default := 250
-var min_code_exec_time_ms:int = min_code_exec_time_ms_default
+var min_code_exec_time_ms: int = min_code_exec_time_ms_default
 
-var code_execution_speed:int:
+var code_execution_speed: int:
 	get:
+		@warning_ignore("integer_division")
 		return 2 - clampi(min_code_exec_time_ms / min_code_exec_time_ms_default, 0, 2)
 	set(value):
 		min_code_exec_time_ms = min_code_exec_time_ms_default * (2 - clamp(value, 0, 2))
@@ -59,7 +60,7 @@ func load_settings() -> void:
 		return
 	
 	var save_file := FileAccess.open("user://settings", FileAccess.READ)
-	var save_dict:Dictionary = save_file.get_var()
+	var save_dict: Dictionary = save_file.get_var()
 	
 	music_volume = save_dict["music_volume"]
 	sound_volume = save_dict["sound_volume"]
