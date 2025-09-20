@@ -116,3 +116,17 @@ func _on_timer_timeout():
 		
 func _exit_tree():
 	%MoveTimer.timeout.emit()
+
+# These are necessary due to Expression not having these available
+# It also doesn't have is operator... I think we'll have to move to something different eventually...
+
+func range(a, b = null, c = null) -> Array:
+	if b == null:
+		return range(a)
+	elif c == null:
+		return range(a, b)
+	else:
+		return range(a, b, c)
+
+func len(x) -> int:
+	return len(x)
