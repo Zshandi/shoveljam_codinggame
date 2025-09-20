@@ -291,12 +291,18 @@ theme_override_fonts/font = ExtResource("5_0k8yu")
 theme_override_styles/read_only = SubResource("StyleBoxEmpty_7cbxl")
 text = "# You may want to do things (like moving) many times in a row
 # For this you can use loops
-# The most basic loop is a repeat, which can be used as follows
-repeat 5:
+# The first loop we'll look at is a for loop, which can be used to repeat as follows:
+for i in 5:
+	move(Direction.RIGHT)
+	# This moves 5 spaces to the right
+
+# This is also just a shorthand for the following:
+for i in range(5):
 	move(Direction.RIGHT)
 	# This moves 5 spaces to the right
 
 # There is another kind of loop called while, but that has it's own tab later"
+scroll_vertical = 13.0
 minimap_draw = true
 syntax_highlighter = SubResource("CodeHighlighter_hiucn")
 gutters_draw_breakpoints_gutter = true
