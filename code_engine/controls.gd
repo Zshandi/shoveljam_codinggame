@@ -309,53 +309,6 @@ func execute_block(line_num: Variant, expected_indent_level: int, is_loop: bool 
 				return %Editor.get_line_count()
 		
 		## Check for continue and break END ##
-		
-		# ## Repeat loop BEGIN ##
-		
-		# var repeat_regex := RegEx.new()
-		# repeat_regex.compile("^repeat\\b(.*):")
-		# var repeat_regex_result := repeat_regex.search(stripped_line)
-		# if repeat_regex_result != null:
-		# 	var count = repeat_regex_result.get_string(1)
-		# 	var count_result = await execute_expression(count, line_num)
-			
-		# 	if context.dead or count_result.status == ResultStatus.Failed:
-		# 		output_result(line_num, count_result)
-		# 		return %Editor.get_line_count()
-			
-		# 	if not (count_result.value is int):
-		# 		result = ExecutionResult.new("repeat count must be a number, but instead got: " + count_result.value_str, ResultStatus.Failed)
-		# 		output_result(line_num, result)
-		# 		return %Editor.get_line_count()
-			
-		# 	var line_num_prev = line_num
-		# 	for i in range(count_result.value):
-		# 		if context.dead or count_result.status == ResultStatus.Failed:
-		# 			output_result(line_num, count_result)
-		# 			return %Editor.get_line_count()
-		# 		set_executing_line(line_num_prev)
-		# 		set_output(line_num_prev, "loop " + str(i + 1) + " out of " + count_result.value_str)
-		# 		if i != 0:
-		# 			await wait_for_ticks(Time.get_ticks_msec() + Options.min_code_exec_time_ms)
-		# 		# This skip is just to clear the output
-		# 		skip_block(line_num_prev + 1, expected_indent_level, true)
-				
-		# 		line_num = await execute_block(line_num_prev + 1, expected_indent_level + 1, true)
-		# 		if has_error:
-		# 			return %Editor.get_line_count()
-		# 		elif line_num is LoopControl:
-		# 			if line_num == LoopControl.BREAK:
-		# 				break
-		# 			# Let continue fall out so we wait either way
-				
-		# 		await wait_for_ticks(Time.get_ticks_msec() + Options.min_code_exec_time_ms)
-			
-		# 	# Need to get proper line_num
-		# 	line_num = skip_block(line_num_prev + 1, expected_indent_level, false)
-			
-		# 	continue
-		
-		# ## Repeat loop END ##
 
 		## For loop BEGIN ##
 		
