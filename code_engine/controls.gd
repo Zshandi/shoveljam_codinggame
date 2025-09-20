@@ -138,7 +138,8 @@ func set_output(line_num: int, output: Variant):
 	const output_prefix = " # result: "
 	line = line.split(output_prefix, true, 1)[0]
 	if output != null:
-		line = line + output_prefix + str(output)
+		output = str(output).replace("\n", " ")
+		line = line + output_prefix + output
 		print_debug("result for line ", line_num, ": ", output)
 	%Editor.set_line_text(line_num, line)
 	%Editor.set_line_as_center_visible(line_num)
@@ -183,8 +184,9 @@ func skip_block(line_num: int, until_indent_level: int, clear_output := true) ->
 	return line_num
 
 # Note: line_num is typically int, but can also be LoopControl, and returns int or LoopControl
-func execute_block(line_num: Variant, expected_indent_level: int, is_loop: bool = false) -> Variant:
-	variables.increase_scope()
+func execute_block(line_num: Variant, expected_indent_level: int, is_loop: bool = false, increase_scope: bool = true) -> Variant:
+	if increase_scope:
+		variables.increase_scope()
 	var result: ExecutionResult = null
 	var was_if := false
 	var was_if_consumed := false
@@ -311,7 +313,7 @@ func execute_block(line_num: Variant, expected_indent_level: int, is_loop: bool 
 		## Repeat loop BEGIN ##
 		
 		var repeat_regex := RegEx.new()
-		repeat_regex.compile("^repeat[\\s\\(](.*):")
+		repeat_regex.compile("^repeat\\b(.*):")
 		var repeat_regex_result := repeat_regex.search(stripped_line)
 		if repeat_regex_result != null:
 			var count = repeat_regex_result.get_string(1)
@@ -354,11 +356,68 @@ func execute_block(line_num: Variant, expected_indent_level: int, is_loop: bool 
 			continue
 		
 		## Repeat loop END ##
+
+		## For loop BEGIN ##
+		
+		var for_regex := RegEx.new()
+		for_regex.compile("^for\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s+in\\b(.*):")
+		var for_regex_result := for_regex.search(stripped_line)
+		if for_regex_result != null:
+			var iterator_name = for_regex_result.get_string(1)
+
+			if not variables.can_declare(iterator_name):
+				result = ExecutionResult.new("redeclaration of variable " + iterator_name)
+				output_result(line_num, result)
+				return %Editor.get_line_count()
+
+			var collection_string = for_regex_result.get_string(2)
+			var collection_result = await execute_expression(collection_string, line_num)
+			
+			if context.dead or collection_result.status == ResultStatus.Failed:
+				output_result(line_num, collection_result)
+				return %Editor.get_line_count()
+			
+			var line_num_prev = line_num
+			for item in collection_result.value:
+				if context.dead or collection_result.status == ResultStatus.Failed:
+					output_result(line_num, collection_result)
+					return %Editor.get_line_count()
+				set_executing_line(line_num_prev)
+				set_output(line_num_prev, "current item: " + str(item))
+				
+				# This skip is just to clear the output
+				skip_block(line_num_prev + 1, expected_indent_level, true)
+				
+				# We need to increase the scope before declaring the new iterator variable
+				variables.increase_scope()
+				# Declare and assign the iterator variable
+				variables.declare(iterator_name)
+				variables.assign(iterator_name, item)
+
+				# Note the extra false param, since we already increased the scope
+				line_num = await execute_block(line_num_prev + 1, expected_indent_level + 1, true, false)
+
+				variables.decrease_scope()
+				if has_error:
+					return %Editor.get_line_count()
+				elif line_num is LoopControl:
+					if line_num == LoopControl.BREAK:
+						break
+					# Let continue fall out so we wait either way
+				
+				await wait_for_ticks(Time.get_ticks_msec() + Options.min_code_exec_time_ms)
+			
+			# Need to get proper line_num
+			line_num = skip_block(line_num_prev + 1, expected_indent_level, false)
+			
+			continue
+		
+		## For loop END ##
 		
 		## While loop BEGIN ##
 		
 		var while_regex := RegEx.new()
-		while_regex.compile("^while[\\s\\(](.*):")
+		while_regex.compile("^while\\b(.*):")
 		var while_regex_result := while_regex.search(stripped_line)
 		if while_regex_result != null:
 			var condition = while_regex_result.get_string(1)
@@ -408,7 +467,8 @@ func execute_block(line_num: Variant, expected_indent_level: int, is_loop: bool 
 		
 		line_num += 1
 	
-	variables.decrease_scope()
+	if increase_scope:
+		variables.decrease_scope()
 	
 	return line_num
 
