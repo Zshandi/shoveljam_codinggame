@@ -302,7 +302,6 @@ for i in range(5):
 	# This moves 5 spaces to the right
 
 # There is another kind of loop called while, but that has it's own tab later"
-scroll_vertical = 13.0
 minimap_draw = true
 syntax_highlighter = SubResource("CodeHighlighter_hiucn")
 gutters_draw_breakpoints_gutter = true
