@@ -1,0 +1,109 @@
+[gd_scene load_steps=25 format=3 uid="uid://khuweva7qja5"]
+
+[ext_resource type="Script" uid="uid://dpnlxdam3xmg7" path="res://levels/level_manager.gd" id="1_6tvrh"]
+[ext_resource type="Script" uid="uid://dtdnyjcdwtuca" path="res://levels/level_info.gd" id="2_k4541"]
+[ext_resource type="PackedScene" uid="uid://busmn2ws8ywf5" path="res://levels/level_1.tscn" id="3_ugugx"]
+[ext_resource type="PackedScene" uid="uid://m5cv7l13m0cr" path="res://levels/level_2.tscn" id="4_5hiki"]
+[ext_resource type="PackedScene" uid="uid://2xv2hgu84i4p" path="res://levels/level_3.tscn" id="5_lhux2"]
+[ext_resource type="PackedScene" uid="uid://bxy7jdhx0dk51" path="res://levels/level_4.tscn" id="6_layxw"]
+[ext_resource type="PackedScene" uid="uid://gpun7sp8a3g4" path="res://levels/level_5.tscn" id="7_6rlki"]
+[ext_resource type="PackedScene" uid="uid://ckhru3w1wmxar" path="res://levels/level_6.tscn" id="8_fu334"]
+[ext_resource type="PackedScene" uid="uid://cy0rpwa4y1qpy" path="res://levels/level_7.tscn" id="9_30iou"]
+[ext_resource type="PackedScene" uid="uid://7gmh270uv7ax" path="res://levels/level_8.tscn" id="10_xp5lc"]
+[ext_resource type="PackedScene" uid="uid://wflp0d3fjj1g" path="res://levels/level_9.tscn" id="11_1853y"]
+[ext_resource type="PackedScene" uid="uid://bjy0o4bgqm23k" path="res://levels/level_10.tscn" id="12_dohrq"]
+[ext_resource type="PackedScene" uid="uid://cxueww0vtmjfn" path="res://levels/level_11.tscn" id="13_mbll2"]
+
+[sub_resource type="Resource" id="Resource_ce4gc"]
+resource_name = "(Just Keep Moving, level_1.tscn)"
+script = ExtResource("2_k4541")
+name = "Just Keep Moving"
+description = "Collect the floppy disk by calling move() the correct number of times
+See the Docs for help"
+scene = ExtResource("3_ugugx")
+metadata/_custom_type_script = "uid://dtdnyjcdwtuca"
+
+[sub_resource type="Resource" id="Resource_5cme4"]
+resource_name = "(Around The Wall, level_2.tscn)"
+script = ExtResource("2_k4541")
+name = "Around The Wall"
+description = "You will need to move in multiple directions to get this one"
+scene = ExtResource("4_5hiki")
+metadata/_custom_type_script = "uid://dtdnyjcdwtuca"
+
+[sub_resource type="Resource" id="Resource_oj6lg"]
+resource_name = "(NULL, level_3.tscn)"
+script = ExtResource("2_k4541")
+name = "NULL"
+description = "Watch out for null references, they will make you crash!"
+scene = ExtResource("5_lhux2")
+metadata/_custom_type_script = "uid://dtdnyjcdwtuca"
+
+[sub_resource type="Resource" id="Resource_ryyjq"]
+resource_name = "(Corner Tactics, level_4.tscn)"
+script = ExtResource("2_k4541")
+name = "Corner Tactics"
+description = "Loops can help you move farther with less lines of code!"
+scene = ExtResource("6_layxw")
+metadata/_custom_type_script = "uid://dtdnyjcdwtuca"
+
+[sub_resource type="Resource" id="Resource_c3dmb"]
+resource_name = "(Diagonal, level_5.tscn)"
+script = ExtResource("2_k4541")
+name = "Diagonal"
+description = "Can you move diagonally?"
+scene = ExtResource("7_6rlki")
+metadata/_custom_type_script = "uid://dtdnyjcdwtuca"
+
+[sub_resource type="Resource" id="Resource_g7iyi"]
+resource_name = "(Thread the Needle, level_6.tscn)"
+script = ExtResource("2_k4541")
+name = "Thread the Needle"
+description = "If you haven't been using loops yet, this is a good time to start!"
+scene = ExtResource("8_fu334")
+metadata/_custom_type_script = "uid://dtdnyjcdwtuca"
+
+[sub_resource type="Resource" id="Resource_kwfr5"]
+resource_name = "(Race Conditions, level_7.tscn)"
+script = ExtResource("2_k4541")
+name = "Race Conditions"
+description = "Race conditions are nasty errors! They move unpredictably every time you move
+Remember, you can check to see if a nearby tile has an error in it before you move there!"
+scene = ExtResource("9_30iou")
+metadata/_custom_type_script = "uid://dtdnyjcdwtuca"
+
+[sub_resource type="Resource" id="Resource_uc41m"]
+resource_name = "(Just go down, level_8.tscn)"
+script = ExtResource("2_k4541")
+name = "Just go down"
+description = "While loops are useful when you want to loop but don't know how many you will need"
+scene = ExtResource("10_xp5lc")
+metadata/_custom_type_script = "uid://dtdnyjcdwtuca"
+
+[sub_resource type="Resource" id="Resource_7x3mq"]
+resource_name = "(Chaos, level_9.tscn)"
+script = ExtResource("2_k4541")
+name = "Chaos"
+description = "If this level is taking too long to run, check out the docs on how to increase the execution speed"
+scene = ExtResource("11_1853y")
+metadata/_custom_type_script = "uid://dtdnyjcdwtuca"
+
+[sub_resource type="Resource" id="Resource_3iuux"]
+resource_name = "(Impossible Maze, level_10.tscn)"
+script = ExtResource("2_k4541")
+name = "Impossible Maze"
+description = "If you can reach the end of this one, you've truly mastered writing code!"
+scene = ExtResource("12_dohrq")
+metadata/_custom_type_script = "uid://dtdnyjcdwtuca"
+
+[sub_resource type="Resource" id="Resource_xyipa"]
+resource_name = "(END, level_11.tscn)"
+script = ExtResource("2_k4541")
+name = "END"
+description = "Congratulations! You've completed all the levels!"
+scene = ExtResource("13_mbll2")
+metadata/_custom_type_script = "uid://dtdnyjcdwtuca"
+
+[node name="LevelManager" type="Node"]
+script = ExtResource("1_6tvrh")
+level_list = Array[ExtResource("2_k4541")]([SubResource("Resource_ce4gc"), SubResource("Resource_5cme4"), SubResource("Resource_oj6lg"), SubResource("Resource_ryyjq"), SubResource("Resource_c3dmb"), SubResource("Resource_g7iyi"), SubResource("Resource_kwfr5"), SubResource("Resource_uc41m"), SubResource("Resource_7x3mq"), SubResource("Resource_3iuux"), SubResource("Resource_xyipa")])
