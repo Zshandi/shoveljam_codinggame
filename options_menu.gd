@@ -1,7 +1,6 @@
 extends MarginContainer
 
 func _ready() -> void:
-	Options.load_settings()
 	%MusicVolumeSlider.set_value_no_signal(Options.music_volume)
 	%SoundVolumeSlider.set_value_no_signal(Options.sound_volume)
 	%ExecutionSpeedSlider.set_value_no_signal(Options.code_execution_speed)

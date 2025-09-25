@@ -154,16 +154,30 @@ func output_result(line_num: int, result: ExecutionResult) -> void:
 		%Editor.add_text("\n!!ERROR: " + result.value_str)
 		has_error = true
 
-func reset_output():
-	var line_num = 0
-	while line_num < %Editor.get_line_count():
-		set_output(line_num, null)
-		if %Editor.get_line(line_num).begins_with("!!ERROR") or %Editor.get_line(line_num).begins_with("** "):
-			%Editor.remove_line_at(line_num)
-		else:
-			line_num += 1
+var last_caret_col: int
+var last_caret_row: int
+func save_caret():
+	last_caret_row = %Editor.get_caret_line()
+	last_caret_col = %Editor.get_caret_column()
+func restore_caret():
+	%Editor.set_caret_line(last_caret_row)
+	%Editor.set_caret_column(last_caret_col)
 
-func skip_block(line_num: int, until_indent_level: int, clear_output := true) -> int:
+func reset_output():
+	save_caret()
+	%Editor.text = sanitize_output(%Editor.text)
+	restore_caret()
+
+func sanitize_output(text: String) -> String:
+	var result_array := []
+	for line in text.split("\n"):
+		const output_prefix = " # result: "
+		line = line.split(output_prefix, true, 1)[0]
+		if !line.begins_with("!!ERROR") and !line.begins_with("** "):
+			result_array.push_back(line)
+	return "\n".join(result_array)
+
+func skip_block(line_num: int, until_indent_level: int, clear_output:=true) -> int:
 	while line_num < %Editor.get_line_count():
 		var line = %Editor.get_line(line_num)
 		var current_indent = 0

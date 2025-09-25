@@ -107,3 +107,11 @@ metadata/_custom_type_script = "uid://dtdnyjcdwtuca"
 [node name="LevelManager" type="Node"]
 script = ExtResource("1_6tvrh")
 level_list = Array[ExtResource("2_k4541")]([SubResource("Resource_ce4gc"), SubResource("Resource_5cme4"), SubResource("Resource_oj6lg"), SubResource("Resource_ryyjq"), SubResource("Resource_c3dmb"), SubResource("Resource_g7iyi"), SubResource("Resource_kwfr5"), SubResource("Resource_uc41m"), SubResource("Resource_7x3mq"), SubResource("Resource_3iuux"), SubResource("Resource_xyipa")])
+
+[node name="CodeSaveDeferredTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+one_shot = true
+
+[node name="CodeSaveMaximumTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+one_shot = true
