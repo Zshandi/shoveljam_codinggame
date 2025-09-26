@@ -83,10 +83,16 @@ func move(direction: Direction) -> TileInfo:
 	velocity = Vector2.ZERO
 	return move_result
 	
-func goto_level(level: int):
-	level = clamp(level - 1, 0, 10)
+func load_level_num(level: int):
+	level = clamp(level, 0, len(LevelManager.level_list) - 1)
 	LevelManager.load_level(level)
-	
+
+func skip_level():
+	LevelManager.load_next()
+
+func get_level_num() -> int:
+	return LevelManager.currently_loaded_level
+
 func grab() -> String:
 	return "not implemented... yet!"
 	
@@ -99,14 +105,14 @@ func reset_player():
 	%AnimTimer.start(randf_range(5, 10))
 	
 func trigger_death():
-	emit_signal("player_death")
+	player_death.emit()
 	dead = true
 	%AnimatedSprite2D.play("death")
 	%MoveTimer.stop()
 	%MoveTimer.emit_signal("timeout")
 	
 func trigger_victory():
-	LevelManager.load_next()
+	LevelManager.level_complete()
 
 
 func _on_timer_timeout():
@@ -120,7 +126,7 @@ func _exit_tree():
 # These are necessary due to Expression not having these available
 # It also doesn't have is operator... I think we'll have to move to something different eventually...
 
-func range(a, b = null, c = null) -> Array:
+func range(a, b=null, c=null) -> Array:
 	if b == null:
 		return range(a)
 	elif c == null:
