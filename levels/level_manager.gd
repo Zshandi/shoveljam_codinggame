@@ -14,6 +14,7 @@ func _ready() -> void:
 	editor = get_tree().get_first_node_in_group(&"Editor")
 	controls = get_tree().get_first_node_in_group(&"Controls")
 	level_node = get_tree().get_first_node_in_group(&"level")
+	if editor == null: return
 
 	editor.text_changed.connect(deferred_code_save)
 	code_save_deferred_timer.timeout.connect(code_save)
@@ -34,6 +35,7 @@ func load_current():
 	load_level(currently_loaded_level)
 	
 func load_level(level_index: int):
+	level_index = clamp(level_index, 0, len(level_list) - 1)
 	code_save()
 	if level_node == null: return
 	for child in level_node.get_children():
@@ -84,7 +86,7 @@ func code_save_maximum_timeout() -> void:
 func code_save() -> void:
 	code_save_maximum_timer.stop()
 	if editor.text == "": return
-	
+
 	var level_index := SaveManager.current_level
 	if level_index not in SaveManager.level_save_data:
 		SaveManager.level_save_data[level_index] = LevelSaveData.new()

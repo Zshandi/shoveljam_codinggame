@@ -2,7 +2,7 @@ extends Node
 
 func test_top_level_assign_no_declare() -> void:
 	var sv := ScopedVariables.new()
-	assert(sv.can_assign("hello", "world") == false)
+	assert(sv.can_assign("hello") == false)
 	assert(sv.assign("hello", "world") == false)
 
 func test_top_level_declare_and_assign() -> void:
@@ -13,7 +13,7 @@ func test_top_level_declare_and_assign() -> void:
 	assert(sv.has_var("hello") == true)
 	assert(sv.get_var("hello") == null)
 	
-	assert(sv.can_assign("hello", "world") == true)
+	assert(sv.can_assign("hello") == true)
 	assert(sv.assign("hello", "world") == true)
 	assert(sv.get_var("hello") == "world")
 	
@@ -30,7 +30,7 @@ func test_first_level_declare_and_assign() -> void:
 	assert(sv.has_var("hello") == true)
 	assert(sv.get_var("hello") == null)
 	
-	assert(sv.can_assign("hello", "world") == true)
+	assert(sv.can_assign("hello") == true)
 	assert(sv.assign("hello", "world") == true)
 	assert(sv.get_var("hello") == "world")
 	
@@ -48,7 +48,7 @@ func test_top_level_declare_first_level_assign() -> void:
 	
 	sv.increase_scope()
 	
-	assert(sv.can_assign("hello", "world") == true)
+	assert(sv.can_assign("hello") == true)
 	assert(sv.assign("hello", "world") == true)
 	assert(sv.get_var("hello") == "world")
 
@@ -147,11 +147,11 @@ func test_top_level_decrease_scope() -> void:
 func run_tests() -> void:
 	print("Starting tests...")
 	for method in get_method_list():
-		var name:String = method["name"]
-		if not name.begins_with("test_"): continue
+		var method_name: String = method["name"]
+		if not method_name.begins_with("test_"): continue
 		
-		print("Running ", name)
-		call(name)
+		print("Running ", method_name)
+		call(method_name)
 	
 	print("All tests passed!")
 

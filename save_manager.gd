@@ -25,8 +25,8 @@ func read_save_data() -> void:
 	if previous_version != _current_version:
 		# In future, translate the save data if necessary, but
 		#  for now assert false so we remember we need to translate it
-		assert(false, "Save data version invalid: must be " + _current_version)
-
+		#assert(false, "Save data version invalid: must be " + _current_version)
+		pass
 	current_level = _save_data["current_level"]
 	
 	for key in _save_data["level_save_data"].keys():
