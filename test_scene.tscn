@@ -201,9 +201,10 @@ do_something_cool()
 count_to(5)
 
 # Sometimes you might want to do something multiple times.
-# Instead of writing out the same line many times, you could use a repeat:
-repeat 10:
-	move_towards_goal()
+# Instead of writing out the same line many times, you could use a for loop:
+for i in 10:
+	# Moves right 10 spaces
+	move(Direction.RIGHT)
 
 # Some functions will also \"return\" a value, which is how they give you information
 # You can use a variable to save this information for later use
@@ -223,6 +224,7 @@ count_to(my_variable)
 my_variable = 20
 
 "
+scroll_vertical = 33.0
 minimap_draw = true
 syntax_highlighter = SubResource("CodeHighlighter_vr1i5")
 gutters_draw_breakpoints_gutter = true

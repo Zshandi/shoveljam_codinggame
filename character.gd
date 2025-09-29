@@ -83,14 +83,14 @@ func move(direction: Direction) -> TileInfo:
 	velocity = Vector2.ZERO
 	return move_result
 	
-func load_level_num(level: int):
+func load_level(level: int):
 	level = clamp(level, 0, len(LevelManager.level_list) - 1)
 	LevelManager.load_level(level)
 
 func skip_level():
 	LevelManager.load_next()
 
-func get_level_num() -> int:
+func get_level() -> int:
 	return LevelManager.currently_loaded_level
 
 func grab() -> String:
