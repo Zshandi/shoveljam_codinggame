@@ -18,6 +18,6 @@
         and version -->
         <export name="Web" file_name="index.html" />
         <export name="Windows Desktop" file_name="[project_and_version].exe" />
-        <export name="Linux" file_name="[project_and_version].x86_64" />
+        <export name="Linux" file_name="[project_and_version]_x86_64" />
     </exports>
 </config>
