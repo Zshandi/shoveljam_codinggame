@@ -31,8 +31,8 @@ func read_save_data() -> void:
 	
 	for key in _save_data["level_save_data"].keys():
 		var value = _save_data["level_save_data"][key]
-		print_debug("Saving level: ", value)
-		level_save_data[key] = LevelSaveData.from_save_data(value)
+		print_debug("Loading level data: ", value)
+		level_save_data[key] = Serializer.deserialize_object(value)
 
 
 func write_save_data() -> void:
@@ -41,8 +41,8 @@ func write_save_data() -> void:
 	
 	_save_data["level_save_data"] = {}
 	for key in level_save_data.keys():
-		var data = level_save_data[key].to_save_data()
-		print_debug("Saving level: ", data)
+		var data = Serializer.serialize_object(level_save_data[key])
+		print_debug("Saving level data: ", data)
 		_save_data["level_save_data"][key] = data
 
 	var save_file := FileAccess.open("user://save_data", FileAccess.WRITE)
